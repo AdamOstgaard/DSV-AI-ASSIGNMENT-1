@@ -3,17 +3,55 @@ public class TankN extends Tank {
   PVector destinationPos;
   ArrayList <PVector> visitedNodes;
   ArrayList <PVector> tankPList;
+  boolean seesEnemy;
+
   TankN(int id, Team team, PVector startpos, float diameter, CannonBall ball) {
     super(id, team, startpos, diameter, ball);
     visitedNodes = new ArrayList <PVector>();
     this.started = false;
     tankPList = new ArrayList<PVector>();
   }
+  
+  Tank[] getEnemyTanks() {
+    Tank[] enemyTanks = new Tank[3];
+    int j = 0;
+    
+    for (int i = 0; i < allTanks.length; i++)
+    {
+      Tank otherTank = allTanks[i]; 
+      if(otherTank.team_id != team_id){
+        enemyTanks[j++] = otherTank;
+      }  
+    }
+    return enemyTanks;
+  }
+  
+  Tank[] getFriendlyTanks(){
+    Tank[] friendly = new Tank[3];
+    for (int i = 1; i < allTanks.length; i++)
+    {
+      Tank otherTank = allTanks[i]; 
+      if(otherTank.team_id == team_id){
+        friendly[friendly.length + 1] = otherTank;
+      }  
+    }
+    return friendly;
+  }
+  
+  
+  Tank[] getOtherTanks(){
+    Tank[] otherTanks = new Tank[5];
+    for (int i = 1; i < allTanks.length; i++)
+    {
+      Tank otherTank = allTanks[i]; 
+      otherTanks[i] = otherTank;
+    }  
+  return otherTanks;
+  }
 
   public void wander() {
     destinationPos = grid.getRandomNodePosition();
     moveTo(destinationPos);
-    view();
   }
 
   public void arrived() {
@@ -91,6 +129,8 @@ public class TankN extends Tank {
   public void updateLogic() {
     super.updateLogic();
 
+    view();
+
     if (!started) {
       started = true;
       moveTo(grid.getRandomNodePosition());
@@ -110,42 +150,86 @@ public class TankN extends Tank {
     }
   }
 
-  //Saxat från nature of code
-  PVector view () {
-    tankPList.clear();
-    Collections.addAll(tankPList, otherTanks);
-    // How far can it see?
-    float sightDistance = 50;
-    float periphery = PI/4;
-    println(otherTanks);
+  void view () {
+    Tank[] enemyTanks = getEnemyTanks();
+    
+    for(int i = 0; i < enemyTanks.length; i++){
+      Tank t = enemyTanks[i];
+        // A vector that points to another boid and that angle
+        PVector comparison = PVector.sub(t.getRealPosition(), position);
+        
+        
 
-    //Just nu så är tankN allTanks[0]
-    for (int i = 1; i < allTanks.length; i++) {
-      // A vector that points to another boid and that angle
-      PVector comparison = PVector.sub(allTanks[i].getRealPosition(), position);
+        // How far is it
+        float d = PVector.dist(position, t.getRealPosition());
 
-      // How far is it
-      float d = PVector.dist(position, allTanks[i].getRealPosition());
-
-      // What is the angle between the other boid and this one's current direction
-      float diff = PVector.angleBetween(comparison, velocity);
-
-      // If it's within the periphery and close enough to see it
-      if (diff < periphery && d > 0 && d < sightDistance) {
-        retreat();
-      }
+        // What is the angle between the other boid and this one's current direction
+        float diff = PVector.angleBetween(t.getRealPosition(), position);
+        
+        float a = radius;
+        float angleDiff = atan(a / d);
+       
+        heading = velocity.heading();
+        println("upper: " + (diff + angleDiff));  
+        println("lower: " + (diff - angleDiff));
+        println("comp: " + angleDiff);
+        println("diff: " + diff);
+        println("rot: " + velocity.heading());
+        
+        seesEnemy = heading > diff - angleDiff && heading < diff + angleDiff;
+        
+        if(seesEnemy){
+          break;
+        }
     }
-
-
-    // Debug Drawing
-    float currentHeading = velocity.heading();
+  
     pushMatrix();
     translate(position.x, position.y);
-    rotate(currentHeading);
-    fill(0, 100);
-    arc(0, 0, sightDistance*2, sightDistance*2, -periphery, periphery);
+    rotate(velocity.heading());
+    
+    if(seesEnemy){
+      // println("SEES ENEMY!");
+      fill(255,0,0);
+      stroke(255,0,0);
+    }
+    line(0, 0, 500, 0);
     popMatrix();
-
-    return new PVector();
+  
   }
+
+  ////Saxat från nature of code
+  //PVector view () {
+  //  // How far can it see?
+  //  float sightDistance = 100;
+  //  float periphery = PI/4;
+  //  println(otherTanks);
+
+  //  //Just nu så är tankN allTanks[0]
+  //  for (int i = 1; i < otherTanks.length; i++) {
+  //    Tank otherTank = otherTanks[i];
+  //    if(otherTank.team_id != team_id){
+      
+  //      // A vector that points to another boid and that angle
+  //      PVector comparison = PVector.sub(allTanks[i].getRealPosition(), position);
+
+  //      // How far is it
+  //      float d = PVector.dist(position, allTanks[i].getRealPosition());
+
+  //      // What is the angle between the other boid and this one's current direction
+  //      float diff = PVector.angleBetween(comparison, velocity);
+
+  //      // If it's within the periphery and close enough to see it
+  //      if (diff < periphery && d > 0 && d < sightDistance) {
+  //        retreat();
+  //      }
+  //    }
+  //  }
+
+
+  //  // Debug Drawing
+  //  float currentHeading = velocity.heading();
+
+
+  //  return new PVector();
+  //}
 }

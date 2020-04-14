@@ -35,7 +35,6 @@ class Tank extends Sprite { //<>//
   float targetHeading; // Används vid rotation mot en target.
   PVector sensor_targetPosition;
 
-  PVector[] otherTanks  = new PVector[5];
   PVector distance3_sensor;
 
   ArrayList listOfActions; // Används ännu inte.
