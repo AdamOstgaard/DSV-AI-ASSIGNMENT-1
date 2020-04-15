@@ -135,7 +135,7 @@ public class TankN extends Tank {
 
   public void arrived() {
     super.arrived();
-    visitedNodes.add(grid.getNearestNode(position));
+    visitedNodes.add(new PVector(this.position.x, this.position.y, this.position.z));
     println(visitedNodes.toString());
     wander();
   }
@@ -143,17 +143,22 @@ public class TankN extends Tank {
   public void retreat() {
     println("*** Team"+this.team_id+".Tank["+ this.getId() + "].retreat()");
     ArrayList <PVector> pathBack = pathBack(this.position);
+    println(visitedNodes.toString());
     for (PVector p : pathBack) {
       //moveTo(p);
     }
     //moveTo(grid.getRandomNodePosition()); // Slumpmässigt mål.
   }
 
-  private ArrayList<PVector> pathBack(PVector start) {
-    ArrayList <PVector> path = shortestPath(start, new ArrayList<PVector>());
-    return path;
+   private ArrayList<PVector> pathBack(PVector start) {
+    ArrayList <PVector> openPath = visitedNodes;
+    Collections.sort(openPath, new DistanceComparator(this.startpos));
+    println(openPath.toString());
+    ArrayList <PVector> closedPath = new ArrayList <PVector>();
+    return openPath;
+    //return shortestPath(openPath, closedPath);
   }
-
+  
   private ArrayList <PVector> shortestPath(PVector start, ArrayList<PVector> pathBack) {
 /*
     int min = Integer.MAX_VALUE;
@@ -184,6 +189,7 @@ public class TankN extends Tank {
 
   public void message_collision(Tank other) {
     println("*** Team"+this.team_id+".Tank["+ this.getId() + "].collision(Tank)");
+
   }
 
   public void updateLogic() {
