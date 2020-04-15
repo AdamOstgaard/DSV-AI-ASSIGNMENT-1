@@ -4,6 +4,7 @@ public class TankN extends Tank {
   ArrayList <PVector> visitedNodes;
   ArrayList <PVector> tankPList;
   boolean seesEnemy;
+  boolean seesTree;
 
   TankN(int id, Team team, PVector startpos, float diameter, CannonBall ball) {
     super(id, team, startpos, diameter, ball);
@@ -155,27 +156,65 @@ public class TankN extends Tank {
 }
 
   void view () {
-    seesEnemy = isEnemyInFront();
+    seesEnemy = false;
+    seesTree = false;
+    Tank[] enemyTanks = getEnemyTanks();
+    float closest = Float.MAX_VALUE;
+    Sprite closestSprite = null;
+    for (int i = 0; i < enemyTanks.length; i++){
+      float distance = PVector.dist(position, enemyTanks[i].getRealPosition());
+      if (inEnemyBase() && isEnemyInFront(enemyTanks[i]) && distance < closest){
+        closest = distance;
+        closestSprite = enemyTanks[i];
+        seesEnemy = true;
+      }
+    }
+    for (int i = 0; i < allTrees.length; i++){
+      float distance = PVector.dist(position, allTrees[i].getRealPosition());
+      if (isTreeInFront(allTrees[i]) && distance < closest){
+        closest = distance;
+        closestSprite = allTrees[i];
+        seesTree = true;
+        seesEnemy = false;
+      }
+    }
   
     pushMatrix();
     translate(position.x, position.y);
     rotate(velocity.heading());
     
     if(seesEnemy){
-      // println("SEES ENEMY!");
+      println("SEES ENEMY!");
       fill(255,0,0);
       stroke(255,0,0);
     }
+    if(seesTree){
+      println("SEES Tree!");
+      fill(0,255,0);
+      stroke(0,255,0);
+    }
     line(0, 0, 500, 0);
     popMatrix();
-  
+    seesEnemy = false;
+    seesTree = true;
   }
 
-  boolean isEnemyInFront(){
-    Tank[] enemyTanks = getEnemyTanks();
+  boolean inEnemyBase(){
+    Team enemyTeam = teams[1];
+    if (
+      position.x > enemyTeam.homebase_x && 
+      position.x < enemyTeam.homebase_x + enemyTeam.homebase_width &&
+      position.y > enemyTeam.homebase_y &&
+      position.y < enemyTeam.homebase_y + enemyTeam.homebase_height) {
+        System.out.println("Enemy Territory!");
+        return true;
+    } else {
+      return false;
+    }
+  }
+
+  boolean isTreeInFront(Tree t){
     
-    for(int i = 0; i < enemyTanks.length; i++){
-      Tank t = enemyTanks[i];
         // A vector that points to another boid and that angle
         PVector comparison = PVector.sub(t.position, position);
         
@@ -203,7 +242,38 @@ public class TankN extends Tank {
         if(heading > diff - angleDiff && heading < diff + angleDiff){
           return true;
         }
-    }
+    return false;
+  }
+
+  boolean isEnemyInFront(Tank t){
+    
+        // A vector that points to another boid and that angle
+        PVector comparison = PVector.sub(t.position, position);
+        
+        // How far is it
+        float d = PVector.dist(position, t.getRealPosition());
+
+        // What is the angle between the other boid and this one's current direction
+        float diff = getAngle(position.x, position.y, t.position.x, t.position.y);
+        
+        float a = radius;
+        float angleDiff = atan(a / d);
+       
+        heading = velocity.heading();
+
+        pushMatrix();
+        translate(position.x, position.y);
+        rotate(diff - angleDiff);
+        stroke(100,50,0);
+        line(0, 0, 500, 0);
+        rotate(angleDiff * 2);
+        line(0, 0, 500, 0);
+        stroke(0,0,0);
+        popMatrix();
+        
+        if(heading > diff - angleDiff && heading < diff + angleDiff){
+          return true;
+        }
     return false;
   }
 

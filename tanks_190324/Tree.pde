@@ -20,6 +20,11 @@ class Tree extends Sprite {
     this.name = "tree";
   }
 
+  //Kopierat från Tank.pde
+  PVector getRealPosition() {
+    return this.position;
+  }
+
   //**************************************************
   void checkCollision(Tank other) {
     
