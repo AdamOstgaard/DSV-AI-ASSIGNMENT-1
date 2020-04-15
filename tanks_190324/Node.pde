@@ -4,6 +4,7 @@ class Node {
   float x,y;   // x,y location
   float w,h;   // width and height
   float angle; // angle for oscillating brightness
+  float radius = 25;
   
   PVector position;
   int col, row;
