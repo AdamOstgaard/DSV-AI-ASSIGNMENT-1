@@ -150,38 +150,12 @@ public class TankN extends Tank {
     }
   }
 
+  float getAngle(float pX1,float pY1, float pX2,float pY2){
+  return atan2(pY2 - pY1, pX2 - pX1);
+}
+
   void view () {
-    Tank[] enemyTanks = getEnemyTanks();
-    
-    for(int i = 0; i < enemyTanks.length; i++){
-      Tank t = enemyTanks[i];
-        // A vector that points to another boid and that angle
-        PVector comparison = PVector.sub(t.getRealPosition(), position);
-        
-        
-
-        // How far is it
-        float d = PVector.dist(position, t.getRealPosition());
-
-        // What is the angle between the other boid and this one's current direction
-        float diff = PVector.angleBetween(t.getRealPosition(), position);
-        
-        float a = radius;
-        float angleDiff = atan(a / d);
-       
-        heading = velocity.heading();
-        println("upper: " + (diff + angleDiff));  
-        println("lower: " + (diff - angleDiff));
-        println("comp: " + angleDiff);
-        println("diff: " + diff);
-        println("rot: " + velocity.heading());
-        
-        seesEnemy = heading > diff - angleDiff && heading < diff + angleDiff;
-        
-        if(seesEnemy){
-          break;
-        }
-    }
+    seesEnemy = isEnemyInFront();
   
     pushMatrix();
     translate(position.x, position.y);
@@ -195,6 +169,42 @@ public class TankN extends Tank {
     line(0, 0, 500, 0);
     popMatrix();
   
+  }
+
+  boolean isEnemyInFront(){
+    Tank[] enemyTanks = getEnemyTanks();
+    
+    for(int i = 0; i < enemyTanks.length; i++){
+      Tank t = enemyTanks[i];
+        // A vector that points to another boid and that angle
+        PVector comparison = PVector.sub(t.position, position);
+        
+        // How far is it
+        float d = PVector.dist(position, t.getRealPosition());
+
+        // What is the angle between the other boid and this one's current direction
+        float diff = getAngle(position.x, position.y, t.position.x, t.position.y);
+        
+        float a = radius;
+        float angleDiff = atan(a / d);
+       
+        heading = velocity.heading();
+
+        pushMatrix();
+        translate(position.x, position.y);
+        rotate(diff - angleDiff);
+        stroke(100,50,0);
+        line(0, 0, 500, 0);
+        rotate(angleDiff * 2);
+        line(0, 0, 500, 0);
+        stroke(0,0,0);
+        popMatrix();
+        
+        if(heading > diff - angleDiff && heading < diff + angleDiff){
+          return true;
+        }
+    }
+    return false;
   }
 
   ////Saxat från nature of code
