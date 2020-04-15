@@ -1,13 +1,13 @@
 public class TankN extends Tank {
   boolean started;
   PVector destinationPos;
-  ArrayList <PVector> visitedNodes;
+  ArrayList <Node> visitedNodes;
   ArrayList <PVector> tankPList;
   boolean seesEnemy;
 
   TankN(int id, Team team, PVector startpos, float diameter, CannonBall ball) {
     super(id, team, startpos, diameter, ball);
-    visitedNodes = new ArrayList <PVector>();
+    visitedNodes = new ArrayList <Node>();
     this.started = false;
     tankPList = new ArrayList<PVector>();
   }
@@ -50,13 +50,82 @@ public class TankN extends Tank {
   }
 
   public void wander() {
-    destinationPos = grid.getRandomNodePosition();
-    moveTo(destinationPos);
+    Node[] nodes = getNeighborNodes();
+    Node node = null;
+
+    int retries = 0;
+
+    for (int i = 0; i < nodes.length; i++){
+      if(nodes[i] != null && !visitedNodes.contains(nodes[i]) && !isNodeTree(nodes[i])){
+        node = nodes[i];
+        moveTo(node.position);
+        println("Short walk");
+        return;
+      }
+    }
+
+
+    for(int i = 0; i < grid.cols * grid.rows; i++){
+      Node tempNode = grid.getNearestNode(grid.getRandomNodePosition());
+      if(!visitedNodes.contains(tempNode) && !isNodeTree(tempNode)){
+        node = tempNode;
+        println("Random walk to known");
+        break;
+      }
+
+      if(node == null){
+        node = grid.getNearestNode(grid.getRandomNodePosition());
+      }
+    
+    }
+          println("Random walk");
+      moveTo(node.position);
+  }
+
+  boolean isNodeTree(Node node){
+    for (int i = 0; i < allTrees.length; i++) {
+      Tree tree = allTrees[i];
+      PVector distanceVect = PVector.sub(tree.position, node.position);
+
+      // Calculate magnitude of the vector separating the tank and the tree
+      float distanceVectMag = distanceVect.mag();
+
+      // Minimum distance before they are touching
+      float minDistance = grid.grid_size + tree.radius;
+
+      if (distanceVectMag <= minDistance) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  Node[] getNeighborNodes(){
+    Node currentNode = grid.getNearestNode(position);
+    Node[] neighbors = new Node[4];
+    
+    if(currentNode.col >= 1){
+      neighbors[0] = grid.nodes[currentNode.col - 1][currentNode.row];
+    }
+
+    if(currentNode.col < grid.cols - 1){
+      neighbors[1] = grid.nodes[currentNode.col + 1][currentNode.row];
+    }
+
+    if(currentNode.row >= 1){
+      neighbors[2] = grid.nodes[currentNode.col][currentNode.row -1];
+    }
+
+    if(currentNode.row < grid.rows - 1){
+      neighbors[3] = grid.nodes[currentNode.col][currentNode.row + 1];
+    }
+
+    return neighbors;
   }
 
   public void arrived() {
     super.arrived();
-    visitedNodes.add(destinationPos);
+    visitedNodes.add(grid.getNearestNode(position));
     println(visitedNodes.toString());
     wander();
   }
@@ -65,7 +134,7 @@ public class TankN extends Tank {
     println("*** Team"+this.team_id+".Tank["+ this.getId() + "].retreat()");
     ArrayList <PVector> pathBack = pathBack(this.position);
     for (PVector p : pathBack) {
-      moveTo(p);
+      //moveTo(p);
     }
     //moveTo(grid.getRandomNodePosition()); // Slumpmässigt mål.
   }
@@ -76,18 +145,18 @@ public class TankN extends Tank {
   }
 
   private ArrayList <PVector> shortestPath(PVector start, ArrayList<PVector> pathBack) {
-
+/*
     int min = Integer.MAX_VALUE;
     PVector nodeToAdd = start;
     if (start == this.startpos)
       return pathBack;
-    for (PVector p : visitedNodes) {
+    for (Node p : visitedNodes) {
       if ((start.x - p.x) + (start.y - p.y) < min) {
         nodeToAdd = p;
       }
     }
     pathBack.add(nodeToAdd);
-    shortestPath(nodeToAdd, pathBack);
+    shortestPath(nodeToAdd, pathBack);*/
     return null;
   }
 
@@ -101,39 +170,21 @@ public class TankN extends Tank {
 
   public void message_collision(Tree other) {
     println("*** Team"+this.team_id+".Tank["+ this.getId() + "].collision(Tree)");
-    wander();
   }
 
   public void message_collision(Tank other) {
     println("*** Team"+this.team_id+".Tank["+ this.getId() + "].collision(Tank)");
-
-    //moveTo(new PVector(int(random(width)),int(random(height))));
-    //println("this.getName());" + this.getName()+ ", this.team_id: "+ this.team_id);
-    //println("other.getName());" + other.getName()+ ", other.team_id: "+ other.team_id);
-
-    if ((other.getName() == "tank") && (other.team_id != this.team_id)) {
-      if (this.hasShot && (!other.isDestroyed)) {
-        println("["+this.team_id+":"+ this.getId() + "] SKJUTER PÅ ["+ other.team_id +":"+other.getId()+"]");
-        fire();
-      } else {
-        retreat(other);
-      }
-
-      rotateTo(other.position);
-      //wander();
-    } else {
-      wander();
-    }
   }
 
   public void updateLogic() {
     super.updateLogic();
-
+    grid.display();
     view();
 
     if (!started) {
       started = true;
-      moveTo(grid.getRandomNodePosition());
+      wander();
+      return;
     }
 
     if (!this.userControlled) {
@@ -141,11 +192,13 @@ public class TankN extends Tank {
       //moveForward_state();
       if (this.stop_state) {
         //rotateTo()
-        wander();
+        //wander();
+        return;
       }
 
       if (this.idle_state) {
-        wander();
+        //wander();
+        return;
       }
     }
   }
@@ -174,7 +227,7 @@ public class TankN extends Tank {
   boolean isEnemyInFront(){
     Tank[] enemyTanks = getEnemyTanks();
     
-    for(int i = 0; i < enemyTanks.length; i++){
+    for(int i = 0; i < enemyTanks.length; i++){ 
       Tank t = enemyTanks[i];
         // A vector that points to another boid and that angle
         PVector comparison = PVector.sub(t.position, position);
