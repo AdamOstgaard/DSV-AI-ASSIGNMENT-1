@@ -5,6 +5,8 @@ class Node {
   // as well as its size with the variables x,y,w,h
   float x,y;   // x,y location
   float w,h;   // width and height
+  float g, heuristic;
+  Node parent = null;
   float angle; // angle for oscillating brightness
   float radius = 25;
   
@@ -59,5 +61,15 @@ class Node {
   //***************************************************
   Sprite content() {
     return this.content;
+  }
+
+  Stack<Node> getPath(Stack<Node> path){
+    path.push(this);
+    if (parent == null){
+      return path;
+    }
+    else {
+      return parent.getPath(path);
+    }
   }
 }
