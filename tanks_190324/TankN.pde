@@ -58,6 +58,7 @@ public class TankN extends Tank {
     return otherTanks;
   }
 
+  //Går till observerade noder som ej är besökta
   public void wander() {
     Node[] nodes = getNeighborNodes();
     Node node = null;
@@ -98,6 +99,7 @@ public class TankN extends Tank {
       moveTo(node.position);
   }
 
+  //Checking if node is a tree
   boolean isNodeTree(Node node){
     for (int i = 0; i < allTrees.length; i++) {
       Tree tree = allTrees[i];
@@ -116,6 +118,7 @@ public class TankN extends Tank {
     return false;
   }
 
+  //Hämtar grann-noder till nuvarande noden.
   Node[] getNeighborNodes(){
     Node currentNode = grid.getNearestNode(position);
     Node[] neighbors = new Node[4];
@@ -151,81 +154,35 @@ public class TankN extends Tank {
     state = StateFlag.ROTATING_PARTIAL;
   }
 
+  //Vi lyckades inte få retreat att fungera
   public void retreat() {
     println("*** Team"+this.team_id+".Tank["+ this.getId() + "].retreat()");
-    //ArrayList <PVector> pathBack = pathBack(this.position);
-    /*
-    println(visitedNodes.toString());
-    for (PVector p : pathBack) {
-      moveTo(p);
-    }
-    */
-    //moveTo(grid.getRandomNodePosition()); // Slumpmässigt mål.
+    //Stack<Node> path = known.nodes[0][0].getPath(new Stack<Node>());
+    //   System.out.println(path.size());
+    //   while (!path.empty()){
+    //     moveTo(path.pop());
+    //   }
   }
-
-/*
-   private ArrayList<PVector> pathBack(PVector start) {
-     
-    ArrayList <PVector> openPath = visitedNodes;
-    Collections.sort(openPath, new DistanceComparator(this.startpos));
-    println(openPath.toString());
-    ArrayList <PVector> closedPath = new ArrayList <PVector>();
-    return openPath;
-    
-    //return shortestPath(openPath, closedPath);
-  }
-*/
   
-  private ArrayList <PVector> shortestPath(PVector start, ArrayList<PVector> pathBack) {
-/*
-    int min = Integer.MAX_VALUE;
-    PVector nodeToAdd = start;
-    if (start == this.startpos)
-      return pathBack;
-    for (Node p : visitedNodes) {
-      if ((start.x - p.x) + (start.y - p.y) < min) {
-        nodeToAdd = p;
-      }
-    }
-    pathBack.add(nodeToAdd);
-    shortestPath(nodeToAdd, pathBack);*/
-    return null;
-  }
 
   //*******************************************************
   // Reterera i motsatt riktning (ej implementerad!)
   public void retreat(Tank other) {
-    //println("*** Team"+this.team_id+".Tank["+ this.getId() + "].retreat()");
-    //moveTo(grid.getRandomNodePosition());
     retreat();
   }
 
   public void message_collision(Tree other) {
     println("*** Team"+this.team_id+".Tank["+ this.getId() + "].collision(Tree)");
-    // boolean foundPath = astar(known.getNearestNode(position), known.nodes[0][0]);
-    // System.out.println("foundPath: " + foundPath);
-    // if (foundPath){
-    //   Stack<Node> path = known.nodes[0][0].getPath(new Stack<Node>());
-    //   System.out.println(path.size());
-    //   while (!path.empty()){
-    //     Node n = path.pop();
-    //     System.out.println("row: " + n.row + " col: " + n.col);
-    //   }
-    // }
     wander();
   }
 
   public void message_collision(Tank other) {
     println("*** Team"+this.team_id+".Tank["+ this.getId() + "].collision(Tank)");
-    // for (int i = 0; i < known.nodes.length; i++){'
-    //   for (int j = 0; j < known.nodes[i].length; j++){
-    //     Node n = known.nodes[i][j];
-    //     System.out.println("row: " + n.row + " col: " + n.col + " content: " + n.nodeContent);
-    //   }
-    // }
+    // retreat(); retreat fungerar ej
     wander();
   }
 
+  //Lagt till uppdatering av states, tanken roterar ett varv efter dan anlänt till en ny nod.
   public void updateLogic() {
     super.updateLogic();
     grid.display();
@@ -251,14 +208,12 @@ public class TankN extends Tank {
         last_rot = heading + 90;
         turnRight();
         state = StateFlag.ROTATING;
-        // spin(0.5);
         break;
       case ROTATING:
         if(round10(fixAngle(degrees(heading))) == round10(fixAngle(degrees(target_rotation)))){
           println("FINNISHED ROTATING");
           state = StateFlag.ARRIVED_ROTATE;
         }
-        //println(round10(fixAngle(degrees(heading)))  + " - " + round10(fixAngle(degrees(target_rotation))));
         turnLeft();
         break;
       case ROTATING_PARTIAL:
@@ -279,6 +234,7 @@ public class TankN extends Tank {
     return (round(n) + 5) / 10 * 10;
   }
 
+  //Hanterar tankens vy och vad den kan observera.
   void view () {
     seesEnemy = false;
     seesTree = false;
@@ -317,7 +273,6 @@ public class TankN extends Tank {
         seesFriend = false;
         seesTree = true;
         currentSpriteContent = Content.TREE;
-        // System.out.println("current position: " + position.toString());
       }
     }
     for (int i = 0; i < grid.nodes.length; i++){
@@ -349,39 +304,7 @@ public class TankN extends Tank {
       if(nodeToUpdate.nodeContent != Content.TREE){
       nodeToUpdate.nodeContent = currentSpriteContent;
       }
-      // System.out.println("Node row: " + nodeToUpdate.row + " col: " + nodeToUpdate.col + " is now: " + currentSpriteContent);
     }
-  
-    // pushMatrix();
-    // translate(position.x, position.y);
-    // rotate(velocity.heading());
-    
-    // if(seesEnemy){
-    //   println("SEES ENEMY!");
-    //   fill(255,0,0);
-    //   stroke(255,0,0);
-    // }
-    // if(seesFriend){
-    //   println("SEES Friend");
-    //   fill(0,0,255);
-    //   stroke(0,0,255);
-    // }
-    // if(seesTree){
-    //   println("SEES Tree!");
-    //   fill(0,255,0);
-    //   stroke(0,255,0);
-    // }
-    // line(0, 0, 500, 0);
-    // popMatrix();
-    // pushMatrix();
-    // translate(0,0);
-    //     for (int i = 0; i < known.nodes.length; i++){
-          
-    //   for (int j = 0; j < known.nodes[i].length; j++){
-    //     displayKnown(known.nodes[i][j]);
-    //   }
-    // }
-    // popMatrix();
   }
 
   boolean inEnemyBase(PVector v){
@@ -399,42 +322,25 @@ public class TankN extends Tank {
 
   boolean isNodeInFront(Node n){
     
-        // A vector that points to another boid and that angle
-        // PVector comparison = PVector.sub(n.position, position);
-        
-        // How far is it
+    //Inspirerat av The Nature of Code exercise_6_17_view
     float d = PVector.dist(position, n.position);
 
-    // What is the angle between the other boid and this one's current direction
     float diff = getAngle(position.x, position.y, n.position.x, n.position.y);
     
     float a = radius;
     float angleDiff = atan(a / d);
     
     heading2 = round(fixAngle(degrees(heading)));
-
-    // pushMatrix();
-    // translate(position.x, position.y);
-    // rotate(diff - angleDiff);
-    // stroke(100,50,0);
-    // line(0, 0, 500, 0);
-    // rotate(angleDiff * 2);
-    // line(0, 0, 500, 0);
-    // stroke(0,0,0);
-    // popMatrix();
     
     return heading2 > round(fixAngle(degrees( diff - angleDiff))) && heading2 < round(fixAngle(degrees(diff + angleDiff)));
   }
 
   boolean isSpriteInFront(Sprite t){
 
-    // A vector that points to another boid and that angle
-    // PVector comparison = PVector.sub(t.position, position);
-    
-    // How far is it
+    //Inspirerat av The Nature of Code exercise_6_17_view
     float d = PVector.dist(position, t.position);
 
-    // What is the angle between the other boid and this one's current direction
+    
     float diff = getAngle(position.x, position.y, t.position.x, t.position.y);
     
     float a = t.radius;
@@ -480,6 +386,7 @@ public class TankN extends Tank {
   }
 
 //Inspirerat av https://github.com/SebLague/Pathfinding/blob/master/Episode%2001%20-%20pseudocode/Pseudocode
+//Använder A* algoritmen för att ta fram den kortaste vägen till målet. Pathen hämtas genom Node.getPath på målnoden.
   boolean astar(Node start, Node end) {
     known.resetPathVariables();
     ArrayList<Node> open = new ArrayList<Node>();
