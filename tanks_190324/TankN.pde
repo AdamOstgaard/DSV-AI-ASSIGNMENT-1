@@ -493,6 +493,7 @@ public class TankN extends Tank {
 
   }
 
+//Inspirerat av https://github.com/SebLague/Pathfinding/blob/master/Episode%2001%20-%20pseudocode/Pseudocode
   boolean astar(Node start, Node end) {
     known.resetPathVariables();
     ArrayList<Node> open = new ArrayList<Node>();
