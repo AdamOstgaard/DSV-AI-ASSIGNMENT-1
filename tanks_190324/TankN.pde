@@ -58,6 +58,18 @@ public class TankN extends Tank {
     return otherTanks;
   }
 
+  public void wander2(){
+    for (int i = 0; i < known.nodes.length; i++){
+      for (int j = 0; j < known.nodes[i].length; j++){
+        if (known[i][j].nodeContent == Content.UNKNOWN){
+          moveTo(known[i][j]);
+          return;
+          //moveTo behöver nog ersättas av A*
+        }
+      }
+    }
+  }
+
   public void wander() {
     Node[] nodes = getNeighborNodes();
     Node node = null;
