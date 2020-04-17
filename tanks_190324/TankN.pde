@@ -1,3 +1,5 @@
+enum StateFlag { RETREATING, WANDERING, ROTATING, ARRIVED_MOVE, ARRIVED_ROTATE, ROTATING_PARTIAL }
+
 public class TankN extends Tank {
   boolean started;
   PVector destinationPos;
@@ -8,12 +10,18 @@ public class TankN extends Tank {
   boolean seesFriend;
   Grid known;
 
+  float target_rotation;
+  float last_rot = 0;
+
+  StateFlag state;
+
   TankN(int id, Team team, PVector startpos, float diameter, CannonBall ball) {
     super(id, team, startpos, diameter, ball);
     visitedNodes = new ArrayList <Node>();
     this.started = false;
     tankPList = new ArrayList<PVector>();
     known = new Grid(cols, rows, grid_size);
+    state = StateFlag.ROTATING;
   }
   
   Tank[] getEnemyTanks() {
@@ -35,20 +43,7 @@ public class TankN extends Tank {
     friendly[0] = allTanks[1];
     friendly[1] = allTanks[2];
     return friendly;
-  }
-  
-  // Tank[] getFriendlyTanks(){
-  //   Tank[] friendly = new Tank[3];
-  //   for (int i = 1; i < allTanks.length; i++)
-  //   {
-  //     Tank otherTank = allTanks[i]; 
-  //     if(otherTank.team_id == team_id){
-  //       friendly[friendly.length + 1] = otherTank;
-  //     }  
-  //   }
-  //   return friendly;
-  // }
-  
+  }  
   
   Tank[] getOtherTanks(){
     Tank[] otherTanks = new Tank[5];
@@ -75,9 +70,9 @@ public class TankN extends Tank {
         Node nodeToUpdate = known.getNearestNode(node.position);
         nodeToUpdate.nodeContent = Content.TREE;
       }
-      if(!visitedNodes.contains(node) && known.nodes[node.row][node.col].nodeContent == Content.EMPTY){
+      if(!visitedNodes.contains(node) && known.nodes[node.col][node.row].nodeContent == Content.EMPTY){
         moveTo(node.position);
-        println("Short walk");
+        println("walk to: " + node.col + ", " + node.row + " - contains: " + known.nodes[node.col][node.row].nodeContent );
         return;
       }
     }
@@ -85,7 +80,7 @@ public class TankN extends Tank {
     for(int i = 0; i < grid.cols * grid.rows; i++){
       Node tempNode = grid.getNearestNode(grid.getRandomNodePosition());
 
-      if(!visitedNodes.contains(tempNode) && known.nodes[tempNode.row][tempNode.col].nodeContent == Content.EMPTY) {
+      if(!visitedNodes.contains(tempNode) && known.nodes[tempNode.col][tempNode.row].nodeContent == Content.EMPTY) {
         node = tempNode;
         println("Random walk to known");
         break;
@@ -143,9 +138,14 @@ public class TankN extends Tank {
 
   public void arrived() {
     super.arrived();
+    state = StateFlag.ARRIVED_MOVE;
     visitedNodes.add(grid.getNearestNode(position));
     println(visitedNodes.toString());
-    wander();
+  }
+
+  void arrivedRotation() {
+    super.arrivedRotation();
+    state = StateFlag.ROTATING_PARTIAL;
   }
 
   public void retreat() {
@@ -198,30 +198,51 @@ public class TankN extends Tank {
   }
 
   public void message_collision(Tree other) {
-    println("*** Team"+this.team_id+".Tank["+ this.getId() + "].collision(Tree)");
-    wander();
+    //wander();
   }
 
   public void message_collision(Tank other) {
-    println("*** Team"+this.team_id+".Tank["+ this.getId() + "].collision(Tank)");
-    for (int i = 0; i < known.nodes.length; i++){
-      for (int j = 0; j < known.nodes[i].length; j++){
-        Node n = known.nodes[i][j];
-        System.out.println("row: " + n.row + " col: " + n.col + " content: " + n.nodeContent);
-      }
-    }
-    wander();
+    //wander();
   }
 
   public void updateLogic() {
     super.updateLogic();
     grid.display();
-    view();
 
     if (!started) {
       started = true;
       wander();
       return;
+    }
+
+    switch(state){
+      case WANDERING:
+        break;
+      case ARRIVED_ROTATE:
+        state = StateFlag.WANDERING;
+        wander();
+        break;
+      case ARRIVED_MOVE:
+      println("START ROTATING");
+        target_rotation = heading;
+        last_rot = heading + 90;
+        rotateTo(radians(last_rot));
+        state = StateFlag.ROTATING;
+        // spin(0.5);
+        break;
+      case ROTATING:
+        if(heading == target_rotation){
+          println("FINNISHED ROTATING");
+          state = StateFlag.ARRIVED_ROTATE;
+        }
+        break;
+      case ROTATING_PARTIAL:
+      println("PARTIAL");
+        rotateTo(radians(last_rot+=90));
+        state = StateFlag.ROTATING;
+        break;
+
+      
     }
 
     if (!this.userControlled) {
