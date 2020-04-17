@@ -206,17 +206,27 @@ public class TankN extends Tank {
 
   public void message_collision(Tree other) {
     println("*** Team"+this.team_id+".Tank["+ this.getId() + "].collision(Tree)");
+    // boolean foundPath = astar(known.getNearestNode(position), known.nodes[0][0]);
+    // System.out.println("foundPath: " + foundPath);
+    // if (foundPath){
+    //   Stack<Node> path = known.nodes[0][0].getPath(new Stack<Node>());
+    //   System.out.println(path.size());
+    //   while (!path.empty()){
+    //     Node n = path.pop();
+    //     System.out.println("row: " + n.row + " col: " + n.col);
+    //   }
+    // }
     wander();
   }
 
   public void message_collision(Tank other) {
     println("*** Team"+this.team_id+".Tank["+ this.getId() + "].collision(Tank)");
-    for (int i = 0; i < known.nodes.length; i++){
-      for (int j = 0; j < known.nodes[i].length; j++){
-        Node n = known.nodes[i][j];
-        System.out.println("row: " + n.row + " col: " + n.col + " content: " + n.nodeContent);
-      }
-    }
+    // for (int i = 0; i < known.nodes.length; i++){
+    //   for (int j = 0; j < known.nodes[i].length; j++){
+    //     Node n = known.nodes[i][j];
+    //     System.out.println("row: " + n.row + " col: " + n.col + " content: " + n.nodeContent);
+    //   }
+    // }
     wander();
   }
 
@@ -449,5 +459,50 @@ public class TankN extends Tank {
           break;
     }
 
+  }
+
+  boolean astar(Node start, Node end) {
+    known.resetPathVariables();
+    ArrayList<Node> open = new ArrayList<Node>();
+    start.g = 0;
+    open.add(start);
+    ArrayList<Node> closed = new ArrayList<Node>();
+    ArrayList<Node> neighbours;
+    while (open.size() > 0){
+      float lowest = Float.MAX_VALUE;
+      Node current = null;
+      for (Node n : open){
+        if (n.g + PVector.dist(n.position, end.position) < lowest){
+          lowest = n.g + PVector.dist(n.position, end.position);
+          current = n;
+        }
+      }
+      open.remove(current);
+      closed.add(current);
+      if (current == end){
+        return true;
+      }
+      neighbours = known.getNeighbours(current.col, current.row);
+      for (Node neighbour : neighbours){
+        if (neighbour.nodeContent == Content.FRIEND ||
+        neighbour.nodeContent == Content.ENEMY ||
+        neighbour.nodeContent == Content.TREE ||
+        closed.contains(neighbour)){
+          continue;
+        }
+        if (!closed.contains(neighbour) || 
+        current.g + PVector.dist(current.position, neighbour.position) < neighbour.g){
+          if (neighbour.nodeContent == Content.UNKNOWN)
+            neighbour.g = current.g + PVector.dist(current.position, neighbour.position) * 2;
+          else
+            neighbour.g = current.g + PVector.dist(current.position, neighbour.position);
+          neighbour.parent = current;
+          if (!open.contains(neighbour)){
+            open.add(neighbour);
+          }
+        }
+      }
+    }
+    return false;
   }
 }
