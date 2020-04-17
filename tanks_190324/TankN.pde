@@ -66,19 +66,26 @@ public class TankN extends Tank {
 
     int retries = 0;
 
-    for (int i = 0; i < nodes.length; i++){
-      if(nodes[i] != null && !visitedNodes.contains(nodes[i]) && !isNodeTree(nodes[i])){
-        node = nodes[i];
+    for (int i = (int)random(0,4); i < nodes.length + 4; i++){
+      node = nodes[i % 4];
+      if(node == null){
+        continue;
+      }
+      if(isNodeTree(node)){
+        Node nodeToUpdate = known.getNearestNode(node.position);
+        nodeToUpdate.nodeContent = Content.TREE;
+      }
+      if(!visitedNodes.contains(node) && known.nodes[node.row][node.col].nodeContent == Content.EMPTY){
         moveTo(node.position);
         println("Short walk");
         return;
       }
     }
 
-
     for(int i = 0; i < grid.cols * grid.rows; i++){
       Node tempNode = grid.getNearestNode(grid.getRandomNodePosition());
-      if(!visitedNodes.contains(tempNode) && !isNodeTree(tempNode)){
+
+      if(!visitedNodes.contains(tempNode) && known.nodes[tempNode.row][tempNode.col].nodeContent == Content.EMPTY) {
         node = tempNode;
         println("Random walk to known");
         break;
@@ -89,7 +96,7 @@ public class TankN extends Tank {
       }
     
     }
-          println("Random walk");
+      println("Random walk");
       moveTo(node.position);
   }
 
@@ -286,17 +293,27 @@ public class TankN extends Tank {
       if ((seesNode && distance < closest && !nodeInEnemyBase(n)) ||
         (seesNode && distance < closest && nodeInEnemyBase(n) && inEnemyBase())) {
         if (closestSprite == null){
-          known.getNearestNode(n.position).nodeContent = Content.EMPTY;
+                    Node nodeToUpdate = known.getNearestNode(n.position);
+          if(nodeToUpdate.nodeContent != Content.TREE){
+              nodeToUpdate.nodeContent = currentSpriteContent;
+          }
+          nodeToUpdate.nodeContent = Content.EMPTY;
         }
         else if (grid.getNearestNode(closestSprite.position()) != grid.nodes[i][j]){
-          known.getNearestNode(n.position).nodeContent = Content.EMPTY;
+          Node nodeToUpdate = known.getNearestNode(n.position);
+          if(nodeToUpdate.nodeContent != Content.TREE){
+              nodeToUpdate.nodeContent = currentSpriteContent;
+          }
+          nodeToUpdate.nodeContent = Content.EMPTY;
         }
       }
       }
     }
     if (closestSprite != null){
       Node nodeToUpdate = known.getNearestNode(closestSprite.position);
+      if(nodeToUpdate.nodeContent != Content.TREE){
       nodeToUpdate.nodeContent = currentSpriteContent;
+      }
       System.out.println("Node row: " + nodeToUpdate.row + " col: " + nodeToUpdate.col + " is now: " + currentSpriteContent);
     }
   
@@ -321,14 +338,15 @@ public class TankN extends Tank {
     // }
     // line(0, 0, 500, 0);
     // popMatrix();
-    // pushMatrix();
-    // translate(0,0);
-    //     for (int i = 0; i < known.nodes.length; i++){
-    //   for (int j = 0; j < known.nodes[i].length; j++){
-    //     displayKnown(known.nodes[i][j]);
-    //   }
-    // }
-    // popMatrix();
+    pushMatrix();
+    translate(0,0);
+        for (int i = 0; i < known.nodes.length; i++){
+          
+      for (int j = 0; j < known.nodes[i].length; j++){
+        displayKnown(known.nodes[i][j]);
+      }
+    }
+    popMatrix();
   }
 
   boolean inEnemyBase(){
@@ -526,7 +544,7 @@ public class TankN extends Tank {
 
   void displayKnown(Node n) {
 
-    ellipse(n.position.x, n.position.y, 40, 40);
+    ellipse(n.position.x, n.position.y - known.grid_size, 40, 40);
 
     switch(n.nodeContent){
       case ENEMY:
