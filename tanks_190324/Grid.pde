@@ -1,3 +1,9 @@
+/* Group 13
+Authors:
+Adam Östgaard
+Sebastian Kappelin
+Niklas Friberg
+*/
 class Grid {
   int cols, rows;
   int grid_size;
@@ -175,6 +181,37 @@ class Grid {
   void addContent(Sprite s) {
     Node n = getNearestNode(s.position);
     n.addContent(s);
+  }
+
+  ArrayList<Node> getNeighbours(int col, int row){
+    ArrayList<Node> result = new ArrayList<Node>();
+    if (col - 1 >= 0)
+      result.add(nodes[col - 1][row]);
+    if (row - 1 >= 0)
+      result.add(nodes[col][row - 1]);
+    if (col + 1 <= cols)
+      result.add(nodes[col + 1][row]);
+    if (row + 1 <= rows)
+      result.add(nodes[col][row + 1]);
+    if (col - 1 >= 0 && row - 1 >= 0)
+      result.add(nodes[col - 1][row - 1]);
+    if (col - 1 >= 0 && row + 1 <= rows)
+      result.add(nodes[col - 1][row + 1]);
+    if (col + 1 <= cols && row - 1 >= 0)
+      result.add(nodes[col + 1][row - 1]);
+    if (col + 1 <= cols && row + 1 <= rows)
+      result.add(nodes[col + 1][row + 1]);
+    return result;
+  }
+
+  void resetPathVariables(){
+    for (int i = 0; i < cols; i++) {
+      for (int j = 0; j < rows; j++) {
+        nodes[i][j].g = 0;
+        nodes[i][j].heuristic = 0;
+        nodes[i][j].parent = null;
+      }
+    }
   }
   
 }

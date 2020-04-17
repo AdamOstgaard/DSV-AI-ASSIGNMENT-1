@@ -141,7 +141,8 @@ void draw() {
     // timer används inte i dagsläget.
     timer.tick(); // Alt.1
     float deltaTime = timer.getDeltaSec();
-    remainingTime = int(timer.getTotalTime()); 
+    remainingTime = int(timer.getTotalTime());
+    System.out.println("remainingTime: " + remainingTime);
     if (remainingTime <= 0) {
       remainingTime = 0;
       timer.pause();
