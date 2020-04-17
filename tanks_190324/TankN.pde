@@ -13,6 +13,7 @@ public class TankN extends Tank {
     visitedNodes = new ArrayList <Node>();
     this.started = false;
     tankPList = new ArrayList<PVector>();
+    known = new Grid(cols, rows, grid_size);
   }
   
   Tank[] getEnemyTanks() {
@@ -196,6 +197,12 @@ public class TankN extends Tank {
 
   public void message_collision(Tank other) {
     println("*** Team"+this.team_id+".Tank["+ this.getId() + "].collision(Tank)");
+    for (int i = 0; i < known.nodes.length; i++){
+      for (int j = 0; j < known.nodes[i].length; j++){
+        Node n = known.nodes[i][j];
+        System.out.println("row: " + n.row + " col: " + n.col + " content: " + n.nodeContent);
+      }
+    }
     wander();
   }
 
@@ -234,6 +241,8 @@ public class TankN extends Tank {
     seesEnemy = false;
     seesTree = false;
     seesFriend = false;
+    Content currentSpriteContent = Content.UNKNOWN;
+    boolean seesNode = false;
     Tank[] enemyTanks = getEnemyTanks();
     Tank[] friendlyTanks = getFriendlyTanks();
     float closest = Float.MAX_VALUE;
@@ -244,6 +253,7 @@ public class TankN extends Tank {
         closest = distance;
         closestSprite = enemyTanks[i];
         seesEnemy = true;
+        currentSpriteContent = Content.ENEMY;
       }
     }
     for (int i = 0; i < friendlyTanks.length; i++){
@@ -253,6 +263,7 @@ public class TankN extends Tank {
         closestSprite = friendlyTanks[i];
         seesEnemy = false;
         seesFriend = true;
+        currentSpriteContent = Content.FRIEND;
       }
     }
     for (int i = 0; i < allTrees.length; i++){
@@ -263,44 +274,61 @@ public class TankN extends Tank {
         seesEnemy = false;
         seesFriend = false;
         seesTree = true;
+        currentSpriteContent = Content.TREE;
         System.out.println("current position: " + position.toString());
       }
     }
     for (int i = 0; i < grid.nodes.length; i++){
       for (int j = 0; j < grid.nodes[i].length; j++){
-      float distance = PVector.dist(position, grid.nodes[i][j].position);
-      if (isNodeInFront(grid.nodes[i][j]) && distance < closest){
+        Node n = grid.nodes[i][j];
+        seesNode = isNodeInFront(n);
+      float distance = PVector.dist(position, n.position);
+      if ((seesNode && distance < closest && !nodeInEnemyBase(n)) ||
+        (seesNode && distance < closest && nodeInEnemyBase(n) && inEnemyBase())) {
         if (closestSprite == null){
-          //spara nod som empty
+          known.getNearestNode(n.position).nodeContent = Content.EMPTY;
         }
         else if (grid.getNearestNode(closestSprite.position()) != grid.nodes[i][j]){
-          //Spara nod som empty
+          known.getNearestNode(n.position).nodeContent = Content.EMPTY;
         }
       }
       }
     }
+    if (closestSprite != null){
+      Node nodeToUpdate = known.getNearestNode(closestSprite.position);
+      nodeToUpdate.nodeContent = currentSpriteContent;
+      System.out.println("Node row: " + nodeToUpdate.row + " col: " + nodeToUpdate.col + " is now: " + currentSpriteContent);
+    }
   
-    pushMatrix();
-    translate(position.x, position.y);
-    rotate(velocity.heading());
+    // pushMatrix();
+    // translate(position.x, position.y);
+    // rotate(velocity.heading());
     
-    if(seesEnemy){
-      println("SEES ENEMY!");
-      fill(255,0,0);
-      stroke(255,0,0);
-    }
-    if(seesFriend){
-      println("SEES Friend");
-      fill(0,0,255);
-      stroke(0,0,255);
-    }
-    if(seesTree){
-      println("SEES Tree!");
-      fill(0,255,0);
-      stroke(0,255,0);
-    }
-    line(0, 0, 500, 0);
-    popMatrix();
+    // if(seesEnemy){
+    //   println("SEES ENEMY!");
+    //   fill(255,0,0);
+    //   stroke(255,0,0);
+    // }
+    // if(seesFriend){
+    //   println("SEES Friend");
+    //   fill(0,0,255);
+    //   stroke(0,0,255);
+    // }
+    // if(seesTree){
+    //   println("SEES Tree!");
+    //   fill(0,255,0);
+    //   stroke(0,255,0);
+    // }
+    // line(0, 0, 500, 0);
+    // popMatrix();
+    // pushMatrix();
+    // translate(0,0);
+    //     for (int i = 0; i < known.nodes.length; i++){
+    //   for (int j = 0; j < known.nodes[i].length; j++){
+    //     displayKnown(known.nodes[i][j]);
+    //   }
+    // }
+    // popMatrix();
   }
 
   boolean inEnemyBase(){
@@ -310,7 +338,20 @@ public class TankN extends Tank {
       position.x < enemyTeam.homebase_x + enemyTeam.homebase_width &&
       position.y > enemyTeam.homebase_y &&
       position.y < enemyTeam.homebase_y + enemyTeam.homebase_height) {
-        System.out.println("In Enemy Territory!");
+        // System.out.println("In Enemy Territory!");
+        return true;
+    } else {
+      return false;
+    }
+  }
+
+  boolean nodeInEnemyBase(Node n){
+    Team enemyTeam = teams[1];
+    if (
+      n.position.x > enemyTeam.homebase_x && 
+      n.position.x < enemyTeam.homebase_x + enemyTeam.homebase_width &&
+      n.position.y > enemyTeam.homebase_y &&
+      n.position.y < enemyTeam.homebase_y + enemyTeam.homebase_height) {
         return true;
     } else {
       return false;
@@ -482,4 +523,28 @@ public class TankN extends Tank {
 
   //  return new PVector();
   //}
+
+  void displayKnown(Node n) {
+
+    ellipse(n.position.x, n.position.y, 40, 40);
+
+    switch(n.nodeContent){
+      case ENEMY:
+          fill(0,0,255,100);
+          break;
+      case FRIEND:
+          fill(255,0,0,100);
+          break;
+      case TREE:
+          fill(0,255,0,100);
+          break;
+      case EMPTY:
+          fill(255,255,255,100);
+          break;
+      case UNKNOWN:
+          fill(0,0,0,100);
+          break;
+    }
+
+  }
 }

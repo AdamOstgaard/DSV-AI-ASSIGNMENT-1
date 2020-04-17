@@ -1,3 +1,5 @@
+enum Content { UNKNOWN, EMPTY, TREE, FRIEND, ENEMY }
+
 class Node {
   // A node object knows about its location in the grid 
   // as well as its size with the variables x,y,w,h
@@ -6,6 +8,9 @@ class Node {
   float angle; // angle for oscillating brightness
   float radius = 25;
   
+  
+  Content nodeContent = Content.UNKNOWN; 
+
   PVector position;
   int col, row;
   
