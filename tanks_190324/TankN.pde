@@ -1,13 +1,4 @@
-<<<<<<< HEAD
 enum StateFlag { RETREATING, WANDERING, ROTATING, ARRIVED_MOVE, ARRIVED_ROTATE, ROTATING_PARTIAL }
-=======
-/* Group 13
-Authors:
-Adam Ostgaard
-Sebastian Kappelin
-Niklas Friberg
-*/
->>>>>>> 0dcab64db6dbf030cf55498766742654286c0fdb
 
 public class TankN extends Tank {
   boolean started;
