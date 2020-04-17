@@ -235,6 +235,8 @@ public class TankN extends Tank {
       return;
     }
 
+    view();
+
     switch(state){
       case WANDERING:
         break;
@@ -244,17 +246,19 @@ public class TankN extends Tank {
         break;
       case ARRIVED_MOVE:
       println("START ROTATING");
-        target_rotation = heading;
+        target_rotation = heading - 270;
         last_rot = heading + 90;
-        rotateTo(radians(last_rot));
+        turnLeft();
         state = StateFlag.ROTATING;
         // spin(0.5);
         break;
       case ROTATING:
-        if(heading == target_rotation){
+        if(round10(fixAngle(degrees(heading))) == round10(fixAngle(degrees(target_rotation)))){
           println("FINNISHED ROTATING");
           state = StateFlag.ARRIVED_ROTATE;
         }
+        //println(round10(fixAngle(degrees(heading)))  + " - " + round10(fixAngle(degrees(target_rotation))));
+        turnLeft();
         break;
       case ROTATING_PARTIAL:
       println("PARTIAL");
@@ -284,6 +288,10 @@ public class TankN extends Tank {
   float getAngle(float pX1,float pY1, float pX2,float pY2){
   return atan2(pY2 - pY1, pX2 - pX1);
 }
+
+  int round10(float n) {
+    return (round(n) + 5) / 10 * 10;
+  }
 
   void view () {
     seesEnemy = false;
