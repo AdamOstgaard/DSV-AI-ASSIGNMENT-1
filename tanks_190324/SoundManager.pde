@@ -1,3 +1,9 @@
+/* Group 13
+Authors:
+Adam Östgaard
+Sebastian Kappelin
+Niklas Friberg
+*/
 /*
     This class uses Minim. When using Processing.js, we don't have 
     access to Minim so we have an equivalent class, SoundManager.js

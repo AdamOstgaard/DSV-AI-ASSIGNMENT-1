@@ -1,4 +1,9 @@
-
+/* Group 13
+Authors:
+Adam Östgaard
+Sebastian Kappelin
+Niklas Friberg
+*/
 // call to Team updateLogic()
 void updateTeamsLogic() {
   teams[0].updateLogic();

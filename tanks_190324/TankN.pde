@@ -1,3 +1,9 @@
+/* Group 13
+Authors:
+Adam Östgaard
+Sebastian Kappelin
+Niklas Friberg
+*/
 enum StateFlag { RETREATING, WANDERING, ROTATING, ARRIVED_MOVE, ARRIVED_ROTATE, ROTATING_PARTIAL }
 
 public class TankN extends Tank {
