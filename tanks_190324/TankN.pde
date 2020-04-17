@@ -57,7 +57,7 @@ public class TankN extends Tank {
       Tank otherTank = allTanks[i]; 
       otherTanks[i] = otherTank;
     }  
-  return otherTanks;
+    return otherTanks;
   }
 
   public void wander() {
@@ -256,7 +256,7 @@ public class TankN extends Tank {
     Sprite closestSprite = null;
     for (int i = 0; i < enemyTanks.length; i++){
       float distance = PVector.dist(position, enemyTanks[i].getRealPosition());
-      if (inEnemyBase() && isEnemyInFront(enemyTanks[i]) && distance < closest){
+      if (inEnemyBase(position) && isSpriteInFront(enemyTanks[i]) && distance < closest){
         closest = distance;
         closestSprite = enemyTanks[i];
         seesEnemy = true;
@@ -265,7 +265,7 @@ public class TankN extends Tank {
     }
     for (int i = 0; i < friendlyTanks.length; i++){
       float distance = PVector.dist(position, friendlyTanks[i].getRealPosition());
-      if (isFriendInFront(friendlyTanks[i]) && distance < closest){
+      if (isSpriteInFront(friendlyTanks[i]) && distance < closest){
         closest = distance;
         closestSprite = friendlyTanks[i];
         seesEnemy = false;
@@ -275,7 +275,7 @@ public class TankN extends Tank {
     }
     for (int i = 0; i < allTrees.length; i++){
       float distance = PVector.dist(position, allTrees[i].getRealPosition());
-      if (isTreeInFront(allTrees[i]) && distance < closest){
+      if (isSpriteInFront(allTrees[i]) && distance < closest){
         closest = distance;
         closestSprite = allTrees[i];
         seesEnemy = false;
@@ -289,24 +289,24 @@ public class TankN extends Tank {
       for (int j = 0; j < grid.nodes[i].length; j++){
         Node n = grid.nodes[i][j];
         seesNode = isNodeInFront(n);
-      float distance = PVector.dist(position, n.position);
-      if ((seesNode && distance < closest && !nodeInEnemyBase(n)) ||
-        (seesNode && distance < closest && nodeInEnemyBase(n) && inEnemyBase())) {
-        if (closestSprite == null){
-                    Node nodeToUpdate = known.getNearestNode(n.position);
-          if(nodeToUpdate.nodeContent != Content.TREE){
+        float distance = PVector.dist(position, n.position);
+        if ((seesNode && distance < closest && !nodeInEnemyBase(n)) ||
+          (seesNode && distance < closest && nodeInEnemyBase(n) && inEnemyBase(position))) {
+          if (closestSprite == null){
+            Node nodeToUpdate = known.getNearestNode(n.position);
+            if(nodeToUpdate.nodeContent != Content.TREE){
               nodeToUpdate.nodeContent = currentSpriteContent;
+            }
+            nodeToUpdate.nodeContent = Content.EMPTY;
           }
-          nodeToUpdate.nodeContent = Content.EMPTY;
-        }
-        else if (grid.getNearestNode(closestSprite.position()) != grid.nodes[i][j]){
-          Node nodeToUpdate = known.getNearestNode(n.position);
-          if(nodeToUpdate.nodeContent != Content.TREE){
+          else if (grid.getNearestNode(closestSprite.position()) != grid.nodes[i][j]){
+            Node nodeToUpdate = known.getNearestNode(n.position);
+            if(nodeToUpdate.nodeContent != Content.TREE){
               nodeToUpdate.nodeContent = currentSpriteContent;
+            }
+            nodeToUpdate.nodeContent = Content.EMPTY;
           }
-          nodeToUpdate.nodeContent = Content.EMPTY;
         }
-      }
       }
     }
     if (closestSprite != null){
@@ -349,31 +349,17 @@ public class TankN extends Tank {
     popMatrix();
   }
 
-  boolean inEnemyBase(){
+  boolean inEnemyBase(PVector v){
     Team enemyTeam = teams[1];
-    if (
-      position.x > enemyTeam.homebase_x && 
-      position.x < enemyTeam.homebase_x + enemyTeam.homebase_width &&
-      position.y > enemyTeam.homebase_y &&
-      position.y < enemyTeam.homebase_y + enemyTeam.homebase_height) {
-        // System.out.println("In Enemy Territory!");
-        return true;
-    } else {
-      return false;
-    }
+    return 
+      v.x > enemyTeam.homebase_x && 
+      v.x < enemyTeam.homebase_x + enemyTeam.homebase_width &&
+      v.y > enemyTeam.homebase_y &&
+      v.y < enemyTeam.homebase_y + enemyTeam.homebase_height;
   }
 
   boolean nodeInEnemyBase(Node n){
-    Team enemyTeam = teams[1];
-    if (
-      n.position.x > enemyTeam.homebase_x && 
-      n.position.x < enemyTeam.homebase_x + enemyTeam.homebase_width &&
-      n.position.y > enemyTeam.homebase_y &&
-      n.position.y < enemyTeam.homebase_y + enemyTeam.homebase_height) {
-        return true;
-    } else {
-      return false;
-    }
+    return inEnemyBase(n.position);
   }
 
   boolean isNodeInFront(Node n){
@@ -382,165 +368,57 @@ public class TankN extends Tank {
         // PVector comparison = PVector.sub(n.position, position);
         
         // How far is it
-        float d = PVector.dist(position, n.position);
+    float d = PVector.dist(position, n.position);
 
-        // What is the angle between the other boid and this one's current direction
-        float diff = getAngle(position.x, position.y, n.position.x, n.position.y);
-        
-        float a = radius;
-        float angleDiff = atan(a / d);
-       
-        heading = velocity.heading();
-
-        // pushMatrix();
-        // translate(position.x, position.y);
-        // rotate(diff - angleDiff);
-        // stroke(100,50,0);
-        // line(0, 0, 500, 0);
-        // rotate(angleDiff * 2);
-        // line(0, 0, 500, 0);
-        // stroke(0,0,0);
-        // popMatrix();
-        
-        if(heading > diff - angleDiff && heading < diff + angleDiff){
-          return true;
-        }
-    return false;
-  }
-
-  boolean isTreeInFront(Tree t){
+    // What is the angle between the other boid and this one's current direction
+    float diff = getAngle(position.x, position.y, n.position.x, n.position.y);
     
-        // A vector that points to another boid and that angle
-        // PVector comparison = PVector.sub(t.position, position);
-        
-        // How far is it
-        float d = PVector.dist(position, t.getRealPosition());
-
-        // What is the angle between the other boid and this one's current direction
-        float diff = getAngle(position.x, position.y, t.position.x, t.position.y);
-        
-        float a = t.radius;
-        float angleDiff = atan(a / d);
-       
-        heading = velocity.heading();
-
-        pushMatrix();
-        translate(position.x, position.y);
-        rotate(diff - angleDiff);
-        stroke(100,50,0);
-        line(0, 0, 500, 0);
-        rotate(angleDiff * 2);
-        line(0, 0, 500, 0);
-        stroke(0,0,0);
-        popMatrix();
-        
-        if(heading > diff - angleDiff && heading < diff + angleDiff){
-          return true;
-        }
-    return false;
-  }
-
-  boolean isFriendInFront(Tank t){
+    float a = radius;
+    float angleDiff = atan(a / d);
     
+    heading = velocity.heading();
 
-        // A vector that points to another boid and that angle
-        // PVector comparison = PVector.sub(t.position, position);
-        
-        // How far is it
-        float d = PVector.dist(position, t.getRealPosition());
-
-        // What is the angle between the other boid and this one's current direction
-        float diff = getAngle(position.x, position.y, t.position.x, t.position.y);
-        
-        float a = radius;
-        float angleDiff = atan(a / d);
-       
-        heading = velocity.heading();
-
-        pushMatrix();
-        translate(position.x, position.y);
-        rotate(diff - angleDiff);
-        stroke(100,50,0);
-        line(0, 0, 500, 0);
-        rotate(angleDiff * 2);
-        line(0, 0, 500, 0);
-        stroke(0,0,0);
-        popMatrix();
-        
-        if(heading > diff - angleDiff && heading < diff + angleDiff){
-          return true;
-        }
-    return false;
-  }
-
-
-  boolean isEnemyInFront(Tank t){
+    // pushMatrix();
+    // translate(position.x, position.y);
+    // rotate(diff - angleDiff);
+    // stroke(100,50,0);
+    // line(0, 0, 500, 0);
+    // rotate(angleDiff * 2);
+    // line(0, 0, 500, 0);
+    // stroke(0,0,0);
+    // popMatrix();
     
-        // A vector that points to another boid and that angle
-        // PVector comparison = PVector.sub(t.position, position);
-        
-        // How far is it
-        float d = PVector.dist(position, t.getRealPosition());
-
-        // What is the angle between the other boid and this one's current direction
-        float diff = getAngle(position.x, position.y, t.position.x, t.position.y);
-        
-        float a = radius;
-        float angleDiff = atan(a / d);
-       
-        heading = velocity.heading();
-
-        pushMatrix();
-        translate(position.x, position.y);
-        rotate(diff - angleDiff);
-        stroke(100,50,0);
-        line(0, 0, 500, 0);
-        rotate(angleDiff * 2);
-        line(0, 0, 500, 0);
-        stroke(0,0,0);
-        popMatrix();
-        
-        if(heading > diff - angleDiff && heading < diff + angleDiff){
-          return true;
-        }
-    return false;
+    return heading > diff - angleDiff && heading < diff + angleDiff;
   }
 
-  ////Saxat från nature of code
-  //PVector view () {
-  //  // How far can it see?
-  //  float sightDistance = 100;
-  //  float periphery = PI/4;
-  //  println(otherTanks);
+  boolean isSpriteInFront(Sprite t){
 
-  //  //Just nu så är tankN allTanks[0]
-  //  for (int i = 1; i < otherTanks.length; i++) {
-  //    Tank otherTank = otherTanks[i];
-  //    if(otherTank.team_id != team_id){
-      
-  //      // A vector that points to another boid and that angle
-  //      PVector comparison = PVector.sub(allTanks[i].getRealPosition(), position);
+    // A vector that points to another boid and that angle
+    // PVector comparison = PVector.sub(t.position, position);
+    
+    // How far is it
+    float d = PVector.dist(position, t.position);
 
-  //      // How far is it
-  //      float d = PVector.dist(position, allTanks[i].getRealPosition());
+    // What is the angle between the other boid and this one's current direction
+    float diff = getAngle(position.x, position.y, t.position.x, t.position.y);
+    
+    float a = t.radius;
+    float angleDiff = atan(a / d);
+    
+    heading = velocity.heading();
 
-  //      // What is the angle between the other boid and this one's current direction
-  //      float diff = PVector.angleBetween(comparison, velocity);
-
-  //      // If it's within the periphery and close enough to see it
-  //      if (diff < periphery && d > 0 && d < sightDistance) {
-  //        retreat();
-  //      }
-  //    }
-  //  }
-
-
-  //  // Debug Drawing
-  //  float currentHeading = velocity.heading();
-
-
-  //  return new PVector();
-  //}
+    pushMatrix();
+    translate(position.x, position.y);
+    rotate(diff - angleDiff);
+    stroke(100,50,0);
+    line(0, 0, 500, 0);
+    rotate(angleDiff * 2);
+    line(0, 0, 500, 0);
+    stroke(0,0,0);
+    popMatrix();
+    
+    return heading > diff - angleDiff && heading < diff + angleDiff;
+  }
 
   void displayKnown(Node n) {
 
