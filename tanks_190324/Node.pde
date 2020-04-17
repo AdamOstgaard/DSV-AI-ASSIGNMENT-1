@@ -1,3 +1,9 @@
+/* Group 13
+Authors:
+Adam Östgaard
+Sebastian Kappelin
+Niklas Friberg
+*/
 enum Content { UNKNOWN, EMPTY, TREE, FRIEND, ENEMY }
 
 class Node {
