@@ -11,6 +11,7 @@ public class TankN extends Tank {
   int reportStartTime;
   boolean waitingToReport;
   Grid known;
+  float heading2;
 
   float target_rotation;
   float last_rot = 0;
@@ -425,7 +426,7 @@ public class TankN extends Tank {
     float a = radius;
     float angleDiff = atan(a / d);
     
-    heading = velocity.heading();
+    heading2 = velocity.heading();
 
     // pushMatrix();
     // translate(position.x, position.y);
@@ -437,7 +438,7 @@ public class TankN extends Tank {
     // stroke(0,0,0);
     // popMatrix();
     
-    return heading > diff - angleDiff && heading < diff + angleDiff;
+    return heading2 > diff - angleDiff && heading2 < diff + angleDiff;
   }
 
   boolean isSpriteInFront(Sprite t){
@@ -454,7 +455,7 @@ public class TankN extends Tank {
     float a = t.radius;
     float angleDiff = atan(a / d);
     
-    heading = velocity.heading();
+    heading2 = velocity.heading();
 
     pushMatrix();
     translate(position.x, position.y);
@@ -466,7 +467,7 @@ public class TankN extends Tank {
     stroke(0,0,0);
     popMatrix();
     
-    return heading > diff - angleDiff && heading < diff + angleDiff;
+    return heading2> diff - angleDiff && heading2 < diff + angleDiff;
   }
 
   void displayKnown(Node n) {
