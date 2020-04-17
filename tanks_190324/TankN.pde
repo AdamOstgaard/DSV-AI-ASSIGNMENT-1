@@ -11,7 +11,7 @@ public class TankN extends Tank {
   int reportStartTime;
   boolean waitingToReport;
   Grid known;
-  float heading2;
+  int heading2;
 
   float target_rotation;
   float last_rot = 0;
@@ -217,7 +217,7 @@ public class TankN extends Tank {
 
   public void message_collision(Tank other) {
     println("*** Team"+this.team_id+".Tank["+ this.getId() + "].collision(Tank)");
-    // for (int i = 0; i < known.nodes.length; i++){
+    // for (int i = 0; i < known.nodes.length; i++){'
     //   for (int j = 0; j < known.nodes[i].length; j++){
     //     Node n = known.nodes[i][j];
     //     System.out.println("row: " + n.row + " col: " + n.col + " content: " + n.nodeContent);
@@ -249,7 +249,7 @@ public class TankN extends Tank {
       println("START ROTATING");
         target_rotation = heading - 270;
         last_rot = heading + 90;
-        turnLeft();
+        turnRight();
         state = StateFlag.ROTATING;
         // spin(0.5);
         break;
@@ -268,21 +268,6 @@ public class TankN extends Tank {
         break;
 
       
-    }
-
-    if (!this.userControlled) {
-
-      //moveForward_state();
-      if (this.stop_state) {
-        //rotateTo()
-        //wander();
-        return;
-      }
-
-      if (this.idle_state) {
-        //wander();
-        return;
-      }
     }
   }
 
@@ -426,7 +411,7 @@ public class TankN extends Tank {
     float a = radius;
     float angleDiff = atan(a / d);
     
-    heading2 = velocity.heading();
+    heading2 = round(fixAngle(degrees(heading)));
 
     // pushMatrix();
     // translate(position.x, position.y);
@@ -438,7 +423,7 @@ public class TankN extends Tank {
     // stroke(0,0,0);
     // popMatrix();
     
-    return heading2 > diff - angleDiff && heading2 < diff + angleDiff;
+    return heading2 > round(fixAngle(degrees( diff - angleDiff))) && heading2 < round(fixAngle(degrees(diff + angleDiff)));
   }
 
   boolean isSpriteInFront(Sprite t){
@@ -455,7 +440,7 @@ public class TankN extends Tank {
     float a = t.radius;
     float angleDiff = atan(a / d);
     
-    heading2 = velocity.heading();
+    heading2 = round(fixAngle(degrees(velocity.heading())));
 
     pushMatrix();
     translate(position.x, position.y);
@@ -467,7 +452,7 @@ public class TankN extends Tank {
     stroke(0,0,0);
     popMatrix();
     
-    return heading2> diff - angleDiff && heading2 < diff + angleDiff;
+    return heading2> round(fixAngle(degrees(diff - angleDiff))) && heading2 < round(fixAngle(degrees(diff + angleDiff)));
   }
 
   void displayKnown(Node n) {
