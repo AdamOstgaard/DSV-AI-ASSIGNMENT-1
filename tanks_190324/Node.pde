@@ -69,6 +69,7 @@ class Node {
     return this.content;
   }
 
+  //Hämtar ut pathen från TankN.astar()
   Stack<Node> getPath(Stack<Node> path){
     path.push(this);
     if (parent == null){
