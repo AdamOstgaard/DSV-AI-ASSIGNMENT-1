@@ -13,6 +13,8 @@ public class TankN extends Tank {
   boolean seesEnemy;
   boolean seesTree;
   boolean seesFriend;
+  int reportStartTime;
+  boolean waitingToReport;
   Grid known;
 
   TankN(int id, Team team, PVector startpos, float diameter, CannonBall ball) {
@@ -299,7 +301,7 @@ public class TankN extends Tank {
         seesFriend = false;
         seesTree = true;
         currentSpriteContent = Content.TREE;
-        System.out.println("current position: " + position.toString());
+        // System.out.println("current position: " + position.toString());
       }
     }
     for (int i = 0; i < grid.nodes.length; i++){
@@ -331,7 +333,7 @@ public class TankN extends Tank {
       if(nodeToUpdate.nodeContent != Content.TREE){
       nodeToUpdate.nodeContent = currentSpriteContent;
       }
-      System.out.println("Node row: " + nodeToUpdate.row + " col: " + nodeToUpdate.col + " is now: " + currentSpriteContent);
+      // System.out.println("Node row: " + nodeToUpdate.row + " col: " + nodeToUpdate.col + " is now: " + currentSpriteContent);
     }
   
     // pushMatrix();
@@ -355,15 +357,15 @@ public class TankN extends Tank {
     // }
     // line(0, 0, 500, 0);
     // popMatrix();
-    pushMatrix();
-    translate(0,0);
-        for (int i = 0; i < known.nodes.length; i++){
+    // pushMatrix();
+    // translate(0,0);
+    //     for (int i = 0; i < known.nodes.length; i++){
           
-      for (int j = 0; j < known.nodes[i].length; j++){
-        displayKnown(known.nodes[i][j]);
-      }
-    }
-    popMatrix();
+    //   for (int j = 0; j < known.nodes[i].length; j++){
+    //     displayKnown(known.nodes[i][j]);
+    //   }
+    // }
+    // popMatrix();
   }
 
   boolean inEnemyBase(PVector v){
@@ -504,5 +506,12 @@ public class TankN extends Tank {
       }
     }
     return false;
+  }
+
+  boolean isReportDone(){
+    if (reportStartTime - remainingTime >= 3)
+      return true;
+    else
+      return false;
   }
 }
