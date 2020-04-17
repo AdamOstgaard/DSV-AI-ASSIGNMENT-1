@@ -1,3 +1,10 @@
+/* Group 13
+Authors:
+Adam Ostgaard
+Sebastian Kappelin
+Niklas Friberg
+*/
+
 public class TankN extends Tank {
   boolean started;
   PVector destinationPos;

@@ -1,3 +1,9 @@
+/* Group 13
+Authors:
+Adam Östgaard
+Sebastian Kappelin
+Niklas Friberg
+*/
 void checkForInput() {
   if (userControl) {
 
