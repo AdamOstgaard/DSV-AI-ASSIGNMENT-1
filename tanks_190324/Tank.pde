@@ -234,6 +234,8 @@ class Tank extends Sprite { //<>//
 
   //**************************************************
   protected void initializeSensors() {
+    SensorVisuals visual = new SensorVisuals(this);
+    registerSensor(visual, "VISUAL");
 
     SensorDistance ultrasonic_front = new SensorDistance(this, 0f);
     registerSensor(ultrasonic_front, "ULTRASONIC_FRONT");
@@ -338,6 +340,37 @@ class Tank extends Sprite { //<>//
     } else {
       println("! Tank["+ this.getId() + "] – The tank must stand STILL to shoot.");
     }
+  }
+
+  public Tank[] getEnemyTanks() {
+    Tank[] enemyTanks = new Tank[3];
+    int j = 0;
+    
+    for (int i = 0; i < allTanks.length; i++)
+    {
+      Tank otherTank = allTanks[i]; 
+      if(otherTank.team_id != team_id){
+        enemyTanks[j++] = otherTank;
+      }  
+    }
+    return enemyTanks;
+  }
+
+  public Tank[] getFriendlyTanks(){
+    Tank[] friendly = new Tank[2];
+    friendly[0] = allTanks[1];
+    friendly[1] = allTanks[2];
+    return friendly;
+  }  
+  
+  public Tank[] getOtherTanks(){
+    Tank[] otherTanks = new Tank[5];
+    for (int i = 1; i < allTanks.length; i++)
+    {
+      Tank otherTank = allTanks[i]; 
+      otherTanks[i] = otherTank;
+    }  
+    return otherTanks;
   }
 
   //**************************************************

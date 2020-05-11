@@ -11,9 +11,6 @@ public class TankN extends Tank {
   PVector destinationPos;
   ArrayList <Node> visitedNodes;
   ArrayList <PVector> tankPList;
-  boolean seesEnemy;
-  boolean seesTree;
-  boolean seesFriend;
   int reportStartTime;
   boolean waitingToReport;
   Grid known;
@@ -33,36 +30,7 @@ public class TankN extends Tank {
     state = StateFlag.ROTATING;
   }
   
-  Tank[] getEnemyTanks() {
-    Tank[] enemyTanks = new Tank[3];
-    int j = 0;
-    
-    for (int i = 0; i < allTanks.length; i++)
-    {
-      Tank otherTank = allTanks[i]; 
-      if(otherTank.team_id != team_id){
-        enemyTanks[j++] = otherTank;
-      }  
-    }
-    return enemyTanks;
-  }
 
-  Tank[] getFriendlyTanks(){
-    Tank[] friendly = new Tank[2];
-    friendly[0] = allTanks[1];
-    friendly[1] = allTanks[2];
-    return friendly;
-  }  
-  
-  Tank[] getOtherTanks(){
-    Tank[] otherTanks = new Tank[5];
-    for (int i = 1; i < allTanks.length; i++)
-    {
-      Tank otherTank = allTanks[i]; 
-      otherTanks[i] = otherTank;
-    }  
-    return otherTanks;
-  }
 
   //Går till observerade noder som ej är besökta
   public void wander() {
@@ -90,7 +58,7 @@ public class TankN extends Tank {
     for(int i = 0; i < grid.cols * grid.rows; i++){
       Node tempNode = grid.getNearestNode(grid.getRandomNodePosition());
 
-      if(!visitedNodes.contains(tempNode) && known.nodes[tempNode.col][tempNode.row].nodeContent == Content.EMPTY) {
+      if(!visitedNodes.contains(tempNode) && known.nodes[tempNode.col][tempNode.row].nodeContent == Content.UNKNOWN) {
         node = tempNode;
         println("Random walk to known");
         break;
@@ -190,16 +158,16 @@ public class TankN extends Tank {
 
   //Lagt till uppdatering av states, tanken roterar ett varv efter dan anlänt till en ny nod.
   public void updateLogic() {
+view(); 
     super.updateLogic();
     grid.display();
-
     if (!started) {
       started = true;
       wander();
       return;
     }
 
-    view();
+    
 
     switch(state){
       case WANDERING:
@@ -209,7 +177,7 @@ public class TankN extends Tank {
         wander();
         break;
       case ARRIVED_MOVE:
-      println("START ROTATING");
+        println("START ROTATING");
         target_rotation = heading - 270;
         last_rot = heading + 90;
         turnRight();
@@ -226,15 +194,9 @@ public class TankN extends Tank {
       println("PARTIAL");
         rotateTo(radians(last_rot+=90));
         state = StateFlag.ROTATING;
-        break;
-
-      
+        break;      
     }
   }
-
-  float getAngle(float pX1,float pY1, float pX2,float pY2){
-  return atan2(pY2 - pY1, pX2 - pX1);
-}
 
   int round10(float n) {
     return (round(n) + 5) / 10 * 10;
@@ -242,153 +204,57 @@ public class TankN extends Tank {
 
   //Hanterar tankens vy och vad den kan observera.
   void view () {
-    seesEnemy = false;
-    seesTree = false;
-    seesFriend = false;
-    Content currentSpriteContent = Content.UNKNOWN;
-    boolean seesNode = false;
-    Tank[] enemyTanks = getEnemyTanks();
-    Tank[] friendlyTanks = getFriendlyTanks();
-    float closest = Float.MAX_VALUE;
-    Sprite closestSprite = null;
-    for (int i = 0; i < enemyTanks.length; i++){
-      float distance = PVector.dist(position, enemyTanks[i].getRealPosition());
-      if (inEnemyBase(position) && isSpriteInFront(enemyTanks[i]) && distance < closest){
-        closest = distance;
-        closestSprite = enemyTanks[i];
-        seesEnemy = true;
-        currentSpriteContent = Content.ENEMY;
+    Sensor s = getSensor("VISUAL");
+
+    SensorReading reading = s.readValue();
+if (reading != null )
+    println(reading.obj.getName());
+
+    if (reading != null && reading.obj.getName() == "tree"){
+      Node nodeToUpdate = known.getNearestNode(reading.obj.position);
+      nodeToUpdate.nodeContent = Content.TREE;
+      
+    }
+
+    if (reading != null && reading.obj.getName() == "tank"){
+      Tank t = (Tank)reading.obj;
+      Node nodeToUpdate = known.getNearestNode(reading.obj.position);
+      if(t.team == team){
+        nodeToUpdate.nodeContent = Content.FRIEND;
+      } else {
+        nodeToUpdate.nodeContent = Content.ENEMY;
       }
     }
-    for (int i = 0; i < friendlyTanks.length; i++){
-      float distance = PVector.dist(position, friendlyTanks[i].getRealPosition());
-      if (isSpriteInFront(friendlyTanks[i]) && distance < closest){
-        closest = distance;
-        closestSprite = friendlyTanks[i];
-        seesEnemy = false;
-        seesFriend = true;
-        currentSpriteContent = Content.FRIEND;
+    //displayKnown();
+  }
+
+
+
+  void displayKnown() {
+    for(int i = 0; i < known.nodes.length; i++){
+      for(int j = 0; j < known.nodes[i].length; j++){
+      Node n = known.nodes[i][j];
+      ellipse(n.position.x, n.position.y - known.grid_size, 40, 40);
+
+      switch(n.nodeContent){
+        case ENEMY:
+            fill(0,0,255,100);
+            break;
+        case FRIEND:
+            fill(255,0,0,100);
+            break;
+        case TREE:
+            fill(0,255,0,100);
+            break;
+        case EMPTY:
+            fill(255,255,255,100);
+            break;
+        case UNKNOWN:
+            fill(0,0,0,100);
+            break;
       }
     }
-    for (int i = 0; i < allTrees.length; i++){
-      float distance = PVector.dist(position, allTrees[i].getRealPosition());
-      if (isSpriteInFront(allTrees[i]) && distance < closest){
-        closest = distance;
-        closestSprite = allTrees[i];
-        seesEnemy = false;
-        seesFriend = false;
-        seesTree = true;
-        currentSpriteContent = Content.TREE;
-      }
     }
-    for (int i = 0; i < grid.nodes.length; i++){
-      for (int j = 0; j < grid.nodes[i].length; j++){
-        Node n = grid.nodes[i][j];
-        seesNode = isNodeInFront(n);
-        float distance = PVector.dist(position, n.position);
-        if ((seesNode && distance < closest && !nodeInEnemyBase(n)) ||
-          (seesNode && distance < closest && nodeInEnemyBase(n) && inEnemyBase(position))) {
-          if (closestSprite == null){
-            Node nodeToUpdate = known.getNearestNode(n.position);
-            if(nodeToUpdate.nodeContent != Content.TREE){
-              nodeToUpdate.nodeContent = currentSpriteContent;
-            }
-            nodeToUpdate.nodeContent = Content.EMPTY;
-          }
-          else if (grid.getNearestNode(closestSprite.position()) != grid.nodes[i][j]){
-            Node nodeToUpdate = known.getNearestNode(n.position);
-            if(nodeToUpdate.nodeContent != Content.TREE){
-              nodeToUpdate.nodeContent = currentSpriteContent;
-            }
-            nodeToUpdate.nodeContent = Content.EMPTY;
-          }
-        }
-      }
-    }
-    if (closestSprite != null){
-      Node nodeToUpdate = known.getNearestNode(closestSprite.position);
-      if(nodeToUpdate.nodeContent != Content.TREE){
-      nodeToUpdate.nodeContent = currentSpriteContent;
-      }
-    }
-  }
-
-  boolean inEnemyBase(PVector v){
-    Team enemyTeam = teams[1];
-    return 
-      v.x > enemyTeam.homebase_x && 
-      v.x < enemyTeam.homebase_x + enemyTeam.homebase_width &&
-      v.y > enemyTeam.homebase_y &&
-      v.y < enemyTeam.homebase_y + enemyTeam.homebase_height;
-  }
-
-  boolean nodeInEnemyBase(Node n){
-    return inEnemyBase(n.position);
-  }
-
-  boolean isNodeInFront(Node n){
-    
-    //Inspirerat av The Nature of Code exercise_6_17_view
-    float d = PVector.dist(position, n.position);
-
-    float diff = getAngle(position.x, position.y, n.position.x, n.position.y);
-    
-    float a = radius;
-    float angleDiff = atan(a / d);
-    
-    heading2 = round(fixAngle(degrees(heading)));
-    
-    return heading2 > round(fixAngle(degrees( diff - angleDiff))) && heading2 < round(fixAngle(degrees(diff + angleDiff)));
-  }
-
-  boolean isSpriteInFront(Sprite t){
-
-    //Inspirerat av The Nature of Code exercise_6_17_view
-    float d = PVector.dist(position, t.position);
-
-    
-    float diff = getAngle(position.x, position.y, t.position.x, t.position.y);
-    
-    float a = t.radius;
-    float angleDiff = atan(a / d);
-    
-    heading2 = round(fixAngle(degrees(velocity.heading())));
-
-    pushMatrix();
-    translate(position.x, position.y);
-    rotate(diff - angleDiff);
-    stroke(100,50,0);
-    line(0, 0, 500, 0);
-    rotate(angleDiff * 2);
-    line(0, 0, 500, 0);
-    stroke(0,0,0);
-    popMatrix();
-    
-    return heading2> round(fixAngle(degrees(diff - angleDiff))) && heading2 < round(fixAngle(degrees(diff + angleDiff)));
-  }
-
-  void displayKnown(Node n) {
-
-    ellipse(n.position.x, n.position.y - known.grid_size, 40, 40);
-
-    switch(n.nodeContent){
-      case ENEMY:
-          fill(0,0,255,100);
-          break;
-      case FRIEND:
-          fill(255,0,0,100);
-          break;
-      case TREE:
-          fill(0,255,0,100);
-          break;
-      case EMPTY:
-          fill(255,255,255,100);
-          break;
-      case UNKNOWN:
-          fill(0,0,0,100);
-          break;
-    }
-
   }
 
 //Inspirerat av https://github.com/SebLague/Pathfinding/blob/master/Episode%2001%20-%20pseudocode/Pseudocode
