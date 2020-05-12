@@ -12,9 +12,11 @@ class SensorVisuals extends Sensor {
         Sprite closestSprite = null;
         for (int i = 0; i < enemyTanks.length; i++){
             float distance = PVector.dist(position, enemyTanks[i].getRealPosition());
-            if (inEnemyBase(position) && isSpriteInFront(enemyTanks[i]) && distance < closest){
+            if (isSpriteInFront(enemyTanks[i]) && distance < closest){
+                if(!inBase(enemyTanks[i].position, enemyTanks[i].team) || inBase(position, enemyTanks[i].team)){
                 closest = distance;
                 closestSprite = enemyTanks[i];
+                } 
             }
         }
         for (int i = 0; i < friendlyTanks.length; i++){
@@ -54,32 +56,30 @@ class SensorVisuals extends Sensor {
         float angleDiff = atan(a / d);
         
         float heading2 = round(fixAngle(degrees(tank.heading)));
-
-        pushMatrix();
-        translate(position.x, position.y);
-        rotate(diff - angleDiff);
-        stroke(100,50,0);    
-        line(0, 0, 500, 0);
-        rotate(angleDiff * 2);
-        line(0, 0, 500, 0);
-        stroke(0,0,0);
-        popMatrix();
+//
+        // pushMatrix();
+        // translate(position.x, position.y);
+        // rotate(diff - angleDiff);
+        // stroke(100,50,0);    
+        // line(0, 0, 500, 0);
+        // rotate(angleDiff * 2);
+        // line(0, 0, 500, 0);
+        // stroke(0,0,0);
+        // popMatrix();
         
         return heading2> round(fixAngle(degrees(diff - angleDiff))) && heading2 < round(fixAngle(degrees(diff + angleDiff)));
     }
         
-    boolean inEnemyBase(PVector v){
-        Team enemyTeam = teams[1];
-
+    boolean inBase(PVector v, Team team){
         return 
-        v.x > enemyTeam.homebase_x && 
-        v.x < enemyTeam.homebase_x + enemyTeam.homebase_width &&
-        v.y > enemyTeam.homebase_y &&
-        v.y < enemyTeam.homebase_y + enemyTeam.homebase_height;
+        v.x > team.homebase_x && 
+        v.x < team.homebase_x + team.homebase_width &&
+        v.y > team.homebase_y &&
+        v.y < team.homebase_y + team.homebase_height;
     }
   
-    boolean nodeInEnemyBase(Node n){
-        return inEnemyBase(n.position);
+    boolean nodeinBase(Node n, Team team){
+        return inBase(n.position, team);
     }
 
     float getAngle(float pX1,float pY1, float pX2,float pY2){

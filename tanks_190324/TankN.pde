@@ -4,9 +4,12 @@ Adam Östgaard
 Sebastian Kappelin
 Niklas Friberg
 */
-enum StateFlag { RETREATING, WANDERING, ROTATING, ARRIVED_MOVE, ARRIVED_ROTATE, ROTATING_PARTIAL }
+
 
 public class TankN extends Tank {
+  int tankHits;
+  int friendlyHits;
+
   boolean started;
   PVector destinationPos;
   ArrayList <Node> visitedNodes;
@@ -18,59 +21,16 @@ public class TankN extends Tank {
 
   float target_rotation;
   float last_rot = 0;
-
-  StateFlag state;
+  ExecutionPlanner planner;
+  ExecutionPlan currentPlan = null;
 
   TankN(int id, Team team, PVector startpos, float diameter, CannonBall ball) {
     super(id, team, startpos, diameter, ball);
+    planner = new ExecutionPlanner(this);
     visitedNodes = new ArrayList <Node>();
     this.started = false;
     tankPList = new ArrayList<PVector>();
     known = new Grid(cols, rows, grid_size);
-    state = StateFlag.ROTATING;
-  }
-  
-
-
-  //Går till observerade noder som ej är besökta
-  public void wander() {
-    Node[] nodes = getNeighborNodes();
-    Node node = null;
-
-    int retries = 0;
-
-    for (int i = (int)random(0,4); i < nodes.length + 4; i++){
-      node = nodes[i % 4];
-      if(node == null){
-        continue;
-      }
-      if(isNodeTree(node)){
-        Node nodeToUpdate = known.getNearestNode(node.position);
-        nodeToUpdate.nodeContent = Content.TREE;
-      }
-      if(!visitedNodes.contains(node) && known.nodes[node.col][node.row].nodeContent == Content.EMPTY){
-        moveTo(node.position);
-        println("walk to: " + node.col + ", " + node.row + " - contains: " + known.nodes[node.col][node.row].nodeContent );
-        return;
-      }
-    }
-
-    for(int i = 0; i < grid.cols * grid.rows; i++){
-      Node tempNode = grid.getNearestNode(grid.getRandomNodePosition());
-
-      if(!visitedNodes.contains(tempNode) && known.nodes[tempNode.col][tempNode.row].nodeContent == Content.UNKNOWN) {
-        node = tempNode;
-        println("Random walk to known");
-        break;
-      }
-
-      if(node == null){
-        node = grid.getNearestNode(grid.getRandomNodePosition());
-      }
-    
-    }
-      println("Random walk");
-      moveTo(node.position);
   }
 
   //Checking if node is a tree
@@ -118,14 +78,12 @@ public class TankN extends Tank {
 
   public void arrived() {
     super.arrived();
-    state = StateFlag.ARRIVED_MOVE;
     visitedNodes.add(grid.getNearestNode(position));
     println(visitedNodes.toString());
   }
 
   void arrivedRotation() {
     super.arrivedRotation();
-    state = StateFlag.ROTATING_PARTIAL;
   }
 
   //Vi lyckades inte få retreat att fungera
@@ -147,86 +105,27 @@ public class TankN extends Tank {
 
   public void message_collision(Tree other) {
     println("*** Team"+this.team_id+".Tank["+ this.getId() + "].collision(Tree)");
-    wander();
+    // wander();
   }
 
   public void message_collision(Tank other) {
     println("*** Team"+this.team_id+".Tank["+ this.getId() + "].collision(Tank)");
     // retreat(); retreat fungerar ej
-    wander();
+    // wander();
   }
 
   //Lagt till uppdatering av states, tanken roterar ett varv efter dan anlänt till en ny nod.
   public void updateLogic() {
-view(); 
     super.updateLogic();
-    grid.display();
-    if (!started) {
-      started = true;
-      wander();
-      return;
+    // grid.display();
+
+    if(currentPlan == null || !currentPlan.hasMoreSteps()){
+      currentPlan = planner.generatePlan();
     }
 
-    
-
-    switch(state){
-      case WANDERING:
-        break;
-      case ARRIVED_ROTATE:
-        state = StateFlag.WANDERING;
-        wander();
-        break;
-      case ARRIVED_MOVE:
-        println("START ROTATING");
-        target_rotation = heading - 270;
-        last_rot = heading + 90;
-        turnRight();
-        state = StateFlag.ROTATING;
-        break;
-      case ROTATING:
-        if(round10(fixAngle(degrees(heading))) == round10(fixAngle(degrees(target_rotation)))){
-          println("FINNISHED ROTATING");
-          state = StateFlag.ARRIVED_ROTATE;
-        }
-        turnLeft();
-        break;
-      case ROTATING_PARTIAL:
-      println("PARTIAL");
-        rotateTo(radians(last_rot+=90));
-        state = StateFlag.ROTATING;
-        break;      
-    }
+    currentPlan.execute();
   }
 
-  int round10(float n) {
-    return (round(n) + 5) / 10 * 10;
-  }
-
-  //Hanterar tankens vy och vad den kan observera.
-  void view () {
-    Sensor s = getSensor("VISUAL");
-
-    SensorReading reading = s.readValue();
-if (reading != null )
-    println(reading.obj.getName());
-
-    if (reading != null && reading.obj.getName() == "tree"){
-      Node nodeToUpdate = known.getNearestNode(reading.obj.position);
-      nodeToUpdate.nodeContent = Content.TREE;
-      
-    }
-
-    if (reading != null && reading.obj.getName() == "tank"){
-      Tank t = (Tank)reading.obj;
-      Node nodeToUpdate = known.getNearestNode(reading.obj.position);
-      if(t.team == team){
-        nodeToUpdate.nodeContent = Content.FRIEND;
-      } else {
-        nodeToUpdate.nodeContent = Content.ENEMY;
-      }
-    }
-    //displayKnown();
-  }
 
 
 
@@ -311,3 +210,7 @@ if (reading != null )
       return false;
   }
 }
+
+  int round10(float n) {
+    return (round(n) + 5) / 10 * 10;
+  }
