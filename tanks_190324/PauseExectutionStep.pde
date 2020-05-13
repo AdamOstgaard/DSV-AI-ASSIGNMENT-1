@@ -2,8 +2,10 @@
 // Good for debugging and waiting for reload
 public class PauseExectutionStep extends ExecutionPlanStep {
     int start = -1;
-    public PauseExectutionStep(Tank tank){
+    int millisecs;
+    public PauseExectutionStep(Tank tank, int millisecs){
         super(tank);
+        this.millisecs = millisecs;
     }
 
     public boolean isValid(){
@@ -17,6 +19,6 @@ public class PauseExectutionStep extends ExecutionPlanStep {
     }
     
     public boolean isFulfilled(){
-        return start < millis() - 1000*3;
+        return start < millis() - millisecs;
     }
 }
