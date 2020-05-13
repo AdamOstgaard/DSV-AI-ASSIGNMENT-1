@@ -5,22 +5,10 @@ Sebastian Kappelin
 Niklas Friberg
 */
 
-
 public class TankN extends Tank {
-  int tankHits;
-  int friendlyHits;
-
-  boolean started;
-  PVector destinationPos;
   ArrayList <Node> visitedNodes;
-  ArrayList <PVector> tankPList;
-  int reportStartTime;
-  boolean waitingToReport;
   Grid known;
-  int heading2;
 
-  float target_rotation;
-  float last_rot = 0;
   ExecutionPlanner planner;
   ExecutionPlan currentPlan = null;
 
@@ -28,28 +16,7 @@ public class TankN extends Tank {
     super(id, team, startpos, diameter, ball);
     planner = new ExecutionPlanner(this);
     visitedNodes = new ArrayList <Node>();
-    this.started = false;
-    tankPList = new ArrayList<PVector>();
     known = new Grid(cols, rows, grid_size);
-  }
-
-  //Checking if node is a tree
-  boolean isNodeTree(Node node){
-    for (int i = 0; i < allTrees.length; i++) {
-      Tree tree = allTrees[i];
-      PVector distanceVect = PVector.sub(tree.position, node.position);
-
-      // Calculate magnitude of the vector separating the tank and the tree
-      float distanceVectMag = distanceVect.mag();
-
-      // Minimum distance before they are touching
-      float minDistance = grid.grid_size + tree.radius;
-
-      if (distanceVectMag <= minDistance) {
-        return true;
-      }
-    }
-    return false;
   }
 
   //Hämtar grann-noder till nuvarande noden.
@@ -79,81 +46,21 @@ public class TankN extends Tank {
   public void arrived() {
     super.arrived();
     visitedNodes.add(grid.getNearestNode(position));
-    println(visitedNodes.toString());
-  }
-
-  void arrivedRotation() {
-    super.arrivedRotation();
-  }
-
-  //Vi lyckades inte få retreat att fungera
-  public void retreat() {
-    println("*** Team"+this.team_id+".Tank["+ this.getId() + "].retreat()");
-    //Stack<Node> path = known.nodes[0][0].getPath(new Stack<Node>());
-    //   System.out.println(path.size());
-    //   while (!path.empty()){
-    //     moveTo(path.pop());
-    //   }
-  }
-  
-
-  //*******************************************************
-  // Reterera i motsatt riktning (ej implementerad!)
-  public void retreat(Tank other) {
-    retreat();
-  }
-
-  public void message_collision(Tree other) {
-    println("*** Team"+this.team_id+".Tank["+ this.getId() + "].collision(Tree)");
-    // wander();
-  }
-
-  public void message_collision(Tank other) {
-    println("*** Team"+this.team_id+".Tank["+ this.getId() + "].collision(Tank)");
-    // retreat(); retreat fungerar ej
-    // wander();
   }
 
   //Lagt till uppdatering av states, tanken roterar ett varv efter dan anlänt till en ny nod.
   public void updateLogic() {
     super.updateLogic();
+
+    this.isEnemyInfront = seesEnemy();
     // grid.display();
 
-    if(currentPlan == null || !currentPlan.hasMoreSteps()){
+    if(currentPlan == null || !currentPlan.hasMoreSteps() || !currentPlan.isValid()){
+      println("replan!");
       currentPlan = planner.generatePlan();
     }
 
     currentPlan.execute();
-  }
-
-
-
-
-  void displayKnown() {
-    for(int i = 0; i < known.nodes.length; i++){
-      for(int j = 0; j < known.nodes[i].length; j++){
-      Node n = known.nodes[i][j];
-      ellipse(n.position.x, n.position.y - known.grid_size, 40, 40);
-
-      switch(n.nodeContent){
-        case ENEMY:
-            fill(0,0,255,100);
-            break;
-        case FRIEND:
-            fill(255,0,0,100);
-            break;
-        case TREE:
-            fill(0,255,0,100);
-            break;
-        case EMPTY:
-            fill(255,255,255,100);
-            break;
-        case UNKNOWN:
-            fill(0,0,0,100);
-            break;
-      }
-    }
-    }
   }
 
 //Inspirerat av https://github.com/SebLague/Pathfinding/blob/master/Episode%2001%20-%20pseudocode/Pseudocode
@@ -203,14 +110,18 @@ public class TankN extends Tank {
     return false;
   }
 
-  boolean isReportDone(){
-    if (reportStartTime - remainingTime >= 3)
-      return true;
-    else
+  boolean seesEnemy(){
+      Sensor s = getSensor("VISUAL");
+      SensorReading reading = s.readValue();
+
+      if(reading != null && reading.obj.getName() == "tank"){
+          Tank t = (Tank)reading.obj;
+          return team != t.team && t.health > 0; 
+      }
       return false;
   }
 }
 
-  int round10(float n) {
-    return (round(n) + 5) / 10 * 10;
-  }
+int round10(float n) {
+  return (round(n) + 5) / 10 * 10;
+}
