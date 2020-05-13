@@ -4,10 +4,11 @@ public class FireCannonExecutionStep extends ExecutionPlanStep {
     }
 
     public boolean isValid(){
-        return tank.hasShot;
+        return tank.hasShot && tank.isEnemyInfront;
     }
 
     public void execute(){
+        tank.stopMoving_state();
         tank.fire();
     }
     
