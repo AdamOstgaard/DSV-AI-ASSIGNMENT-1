@@ -65,6 +65,7 @@ class Tank extends Sprite { //<>//
   boolean isColliding; // Tanken håller på att krocka.
   boolean isAtHomebase;
   boolean userControlled; // Om användaren har tagit över kontrollen.
+  boolean isEnemyInfront;
 
   boolean hasShot; // Tanken kan bara skjuta om den har laddat kanonen, hasShot=true.
   CannonBall ball;
