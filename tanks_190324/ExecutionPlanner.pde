@@ -21,6 +21,8 @@ public class ExecutionPlanner {
         ArrayList<ExecutionPlanStep> steps = new ArrayList<ExecutionPlanStep>();
         steps.add(new WalkToRandomExecutionStep(tank));
         steps.add(new LookAroundForEnemyExecutionStep(tank));
+        //astar
+
         steps.add(new FireCannonExecutionStep(tank));
         steps.add(new PauseExectutionStep(tank, 1000));
 
@@ -32,6 +34,7 @@ public class ExecutionPlanner {
 
     private ExecutionPlan generateLoadCannonPlan(){
         ArrayList<ExecutionPlanStep> steps = new ArrayList<ExecutionPlanStep>();
+        steps.add(new AStarRetreatExecutionStep(tank));
         steps.add(new LoadCannonExecutionStep(tank));
         steps.add(new PauseExectutionStep(tank, 3000));
         ExecutionPlanStep[] itemsArray = new ExecutionPlanStep[steps.size()];
