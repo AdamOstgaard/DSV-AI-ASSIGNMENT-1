@@ -32,6 +32,7 @@ public class ExecutionPlanner {
 
     private ExecutionPlan generateLoadCannonPlan(){
         ArrayList<ExecutionPlanStep> steps = new ArrayList<ExecutionPlanStep>();
+        steps.add(new AStarRetreatExecutionStep(tank));
         steps.add(new LoadCannonExecutionStep(tank));
         steps.add(new PauseExectutionStep(tank, 3000));
         ExecutionPlanStep[] itemsArray = new ExecutionPlanStep[steps.size()];

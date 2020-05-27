@@ -46,6 +46,8 @@ public class TankN extends Tank {
   public void arrived() {
     super.arrived();
     visitedNodes.add(grid.getNearestNode(position));
+    known.getNearestNode(position).nodeContent = Content.EMPTY;
+    println("ARRIVED AT: " + known.getNearestNode(position).nodeContent);
   }
 
   //Lagt till uppdatering av states, tanken roterar ett varv efter dan anlänt till en ny nod.

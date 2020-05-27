@@ -183,27 +183,27 @@ class Grid {
     n.addContent(s);
   }
 
+
   ArrayList<Node> getNeighbours(int col, int row){
     ArrayList<Node> result = new ArrayList<Node>();
     if (col - 1 >= 0)
       result.add(nodes[col - 1][row]);
     if (row - 1 >= 0)
       result.add(nodes[col][row - 1]);
-    if (col + 1 <= cols)
+    if (col + 1 <= cols - 1)
       result.add(nodes[col + 1][row]);
-    if (row + 1 <= rows)
+    if (row + 1 <= rows - 1)
       result.add(nodes[col][row + 1]);
     if (col - 1 >= 0 && row - 1 >= 0)
       result.add(nodes[col - 1][row - 1]);
-    if (col - 1 >= 0 && row + 1 <= rows)
+    if (col - 1 >= 0 && row + 1 <= rows - 1)
       result.add(nodes[col - 1][row + 1]);
-    if (col + 1 <= cols && row - 1 >= 0)
+    if (col + 1 <= cols - 1 && row - 1 >= 0)
       result.add(nodes[col + 1][row - 1]);
-    if (col + 1 <= cols && row + 1 <= rows)
+    if (col + 1 <= cols - 1 && row + 1 <= rows - 1)
       result.add(nodes[col + 1][row + 1]);
     return result;
   }
-
   void resetPathVariables(){
     for (int i = 0; i < cols; i++) {
       for (int j = 0; j < rows; j++) {
