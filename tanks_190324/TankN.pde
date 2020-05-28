@@ -52,7 +52,23 @@ public class TankN extends Tank {
   public void updateLogic() {
     super.updateLogic();
 
-    this.isEnemyInfront = seesEnemy();
+    Sensor s = getSensor("VISUAL");
+    SensorReading reading = s.readValue();
+
+    updateKnownObjects(reading);
+    updateKnownNodes(s, reading);
+
+    // Det här kan användas sen för att kapa ner antalet steg från astar.
+    // SensorVisuals sv = (SensorVisuals) s;
+    // boolean nodeInFront = sv.isNodeInFront(node n, reading);
+
+    // Testmetoder
+    // printKnownNodes();
+    // displayKnownNodes();
+
+
+
+    this.isEnemyInfront = seesEnemy(reading);
     // grid.display();
 
     if(currentPlan == null || !currentPlan.hasMoreSteps() || !currentPlan.isValid()){
@@ -90,7 +106,7 @@ public class TankN extends Tank {
       for (Node neighbour : neighbours){
         if (neighbour.nodeContent == Content.FRIEND ||
         neighbour.nodeContent == Content.ENEMY ||
-        neighbour.nodeContent == Content.TREE ||
+        neighbour.nodeContent == Content.OBSTACLE ||
         closed.contains(neighbour)){
           continue;
         }
@@ -110,9 +126,9 @@ public class TankN extends Tank {
     return false;
   }
 
-  boolean seesEnemy(){
-      Sensor s = getSensor("VISUAL");
-      SensorReading reading = s.readValue();
+  boolean seesEnemy(SensorReading reading){
+      //Sensor s = getSensor("VISUAL");
+      //SensorReading reading = s.readValue();
 
       if(reading != null && reading.obj.getName() == "tank"){
           Tank t = (Tank)reading.obj;
@@ -120,8 +136,103 @@ public class TankN extends Tank {
       }
       return false;
   }
+
+  //Om SensorReading har ett objekt så läggs det till i known.
+  void updateKnownObjects(SensorReading sr){
+    if (sr == null){
+      return;
+    }
+    else{
+      Sprite sprite = sr.obj();
+      Node node = known.getNearestNode(sprite.position);
+        switch (sprite.getName()){
+            case "tree":
+                ArrayList<Node> nodes = known.getNeighbours(node.col, node.row);
+                for (Node n : nodes){
+                    known.nodes[n.col][n.row].nodeContent = Content.OBSTACLE;
+                }
+                known.nodes[node.col][node.row].nodeContent = Content.OBSTACLE;
+                break;
+            case "tank":
+                Tank otherTank = (Tank)sprite;
+                if (team != otherTank.team && otherTank.health > 0){
+                    known.nodes[node.col][node.row].nodeContent = Content.ENEMY;
+                }
+                else if(team == otherTank.team && otherTank.health > 0){
+                    known.nodes[node.col][node.row].nodeContent = Content.FRIEND;
+                }
+                else{
+                    known.nodes[node.col][node.row].nodeContent = Content.OBSTACLE;
+                }
+                break;
+        }
+    }
+  }
+
+  //Noder som tanken kan se markeras som empty.
+  void updateKnownNodes(Sensor s, SensorReading sr){
+    SensorVisuals sensorVisuals = (SensorVisuals)s;
+    for (int col = 0; col < known.nodes.length; col++){
+      for (int row = 0; row < known.nodes[col].length; row++){
+        boolean inFront = sensorVisuals.isNodeInFront(known.nodes[col][row], sr);
+        if (inFront){
+          if (known.nodes[col][row].nodeContent != Content.OBSTACLE)
+            known.nodes[col][row].nodeContent = Content.EMPTY;
+        }
+      }
+    }
+  }
+
+  //testmetod för att printa ut info om noder som tanken känner till
+  void printKnownNodes(){
+    for (int col = 0; col < known.nodes.length; col++){
+      for (int row = 0; row < known.nodes[col].length; row++){
+        System.out.println("Col: " + col + " Row: " + row + " nodeContent: " + known.nodes[col][row].nodeContent + "\n");
+      }
+    }
+  }
+
+  //testmetod för att färglägga noder som tanken känner till 
+  void displayKnownNodes() {
+    pushMatrix();
+    Node n = null;
+    for(int col = 0; col < known.nodes.length; col++){
+      for (int row = 0; row < known.nodes[col].length; row++){
+        n = known.nodes[col][row];
+        ellipse(n.position.x, n.position.y, 40, 40);
+        switch(n.nodeContent){
+        case ENEMY:
+          fill(0,0,255,100);
+          break;
+        case FRIEND:
+          fill(255,0,0,100);
+          break;
+        case OBSTACLE:
+          fill(0,255,0,100);
+          break;
+        case EMPTY:
+          fill(255,255,255,100);
+          break;
+        case UNKNOWN:
+          fill(0,0,0,100);
+          break;
+    }
+      }
+    }
+    
+    
+
+    popMatrix();
+  }
+
+
+
 }
 
 int round10(float n) {
   return (round(n) + 5) / 10 * 10;
+}
+
+float getAngle(float pX1,float pY1, float pX2,float pY2){
+  return atan2(pY2 - pY1, pX2 - pX1);
 }
