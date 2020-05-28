@@ -183,6 +183,7 @@ class Grid {
     n.addContent(s);
   }
 
+
   ArrayList<Node> getNeighbours(int col, int row){
     ArrayList<Node> result = new ArrayList<Node>();
     if (col - 1 >= 0)
@@ -203,7 +204,6 @@ class Grid {
       result.add(nodes[col + 1][row + 1]);
     return result;
   }
-
   void resetPathVariables(){
     for (int i = 0; i < cols; i++) {
       for (int j = 0; j < rows; j++) {

@@ -1,3 +1,9 @@
+/* Group 13
+Authors:
+Adam Östgaard
+Sebastian Kappelin
+Niklas Friberg
+*/
 import java.util.*;
 
 class Team1 extends Team {
@@ -10,8 +16,8 @@ class Team1 extends Team {
 
     // tanks[0] = new Tank(tank0_id, this, this.tank0_startpos, this.tank_size, ball0);
     tanks[0] = new TankN(tank0_id, this, this.tank0_startpos, this.tank_size, ball0);
-    tanks[1] = new Tank(tank1_id, this, this.tank1_startpos, this.tank_size, ball1);
-    tanks[2] = new Tank(tank2_id, this, this.tank2_startpos, this.tank_size, ball2);
+    tanks[1] = new TankN(tank1_id, this, this.tank1_startpos, this.tank_size, ball1);
+    tanks[2] = new TankN(tank2_id, this, this.tank2_startpos, this.tank_size, ball2);
 
     //this.homebase_x = 0;
     //this.homebase_y = 0;
