@@ -4,7 +4,7 @@ Adam Östgaard
 Sebastian Kappelin
 Niklas Friberg
 */
-enum Content { UNKNOWN, EMPTY, TREE, FRIEND, ENEMY }
+enum Content { UNKNOWN, EMPTY, OBSTACLE, FRIEND, ENEMY }
 
 class Node {
   // A node object knows about its location in the grid 
