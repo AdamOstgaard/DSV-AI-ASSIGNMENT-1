@@ -64,7 +64,7 @@ int wait = 3000; //wait 3 sec (reload)
 boolean tick;
 
 Timer timer;
-int startTime = 1; //minutes 
+int startTime = 5; //minutes 
 int remainingTime;
 
 void setup(){

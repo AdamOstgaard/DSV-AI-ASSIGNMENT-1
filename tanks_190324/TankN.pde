@@ -46,6 +46,8 @@ public class TankN extends Tank {
   public void arrived() {
     super.arrived();
     visitedNodes.add(grid.getNearestNode(position));
+    //known.getNearestNode(position).nodeContent = Content.EMPTY;
+    println("ARRIVED AT: " + known.getNearestNode(position).nodeContent);
   }
 
   //Lagt till uppdatering av states, tanken roterar ett varv efter dan anlänt till en ny nod.
@@ -53,6 +55,7 @@ public class TankN extends Tank {
     super.updateLogic();
 
     this.isEnemyInfront = seesEnemy();
+    registerTree();
     // grid.display();
 
     if(currentPlan == null || !currentPlan.hasMoreSteps() || !currentPlan.isValid()){
@@ -119,6 +122,20 @@ public class TankN extends Tank {
           return team != t.team && t.health > 0; 
       }
       return false;
+  }
+  void registerTree(){
+      Sensor s = getSensor("VISUAL");
+      SensorReading reading = s.readValue();
+
+      if(reading != null && reading.obj.getName() == "tree"){
+          Tree t = (Tree)reading.obj;
+          Node treeNode = known.getNearestNode(t.position);
+          treeNode.nodeContent = Content.TREE;
+          ArrayList<Node> neighbors = known.getNeighbours(treeNode.col, treeNode.row);
+          for (Node n : neighbors){
+            n.nodeContent = Content.TREE;
+          }
+      }
   }
 }
 
