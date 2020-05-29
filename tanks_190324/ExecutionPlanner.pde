@@ -37,8 +37,9 @@ public class ExecutionPlanner {
         steps.add(new LookAroundForEnemyExecutionStep(tank));
         steps.add(new FireCannonExecutionStep(tank));
         steps.add(new AStarRetreatExecutionStep(tank));
+        steps.add(new PauseExecutionStep(tank, 3000));
         steps.add(new RadioUpdateTeamExecutionStep(tank));
-        steps.add(new PauseExecutionStep(tank, 1000));
+
         
 
         ExecutionPlanStep[] itemsArray = new ExecutionPlanStep[steps.size()];
@@ -49,8 +50,8 @@ public class ExecutionPlanner {
 
     private ExecutionPlan generateLoadCannonPlan(){
         ArrayList<ExecutionPlanStep> steps = new ArrayList<ExecutionPlanStep>();
-        steps.add(new LoadCannonExecutionStep(tank));
         steps.add(new PauseExecutionStep(tank, 3000));
+        steps.add(new LoadCannonExecutionStep(tank));
         ExecutionPlanStep[] itemsArray = new ExecutionPlanStep[steps.size()];
         itemsArray = steps.toArray(itemsArray);
 
@@ -62,6 +63,19 @@ public class ExecutionPlanner {
         steps.add(new LookAroundForEnemyExecutionStep(tank));
         steps.add(new FireCannonExecutionStep(tank));
         steps.add(new PauseExecutionStep(tank, 1000));
+
+        ExecutionPlanStep[] itemsArray = new ExecutionPlanStep[steps.size()];
+        itemsArray = steps.toArray(itemsArray);
+
+        return new ExecutionPlan(itemsArray);
+    }
+
+    public ExecutionPlan generateFireCannonPlan(){
+        ArrayList<ExecutionPlanStep> steps = new ArrayList<ExecutionPlanStep>();
+        steps.add(new FireCannonExecutionStep(tank));
+        steps.add(new AStarRetreatExecutionStep(tank));
+        steps.add(new PauseExecutionStep(tank, 3000));
+        steps.add(new RadioUpdateTeamExecutionStep(tank));
 
         ExecutionPlanStep[] itemsArray = new ExecutionPlanStep[steps.size()];
         itemsArray = steps.toArray(itemsArray);

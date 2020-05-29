@@ -13,6 +13,12 @@ public class FireCannonExecutionStep extends ExecutionPlanStep {
     }
     
     public boolean isFulfilled(){
-        return !tank.hasShot;
+        if (!tank.hasShot){
+            tank.isRetreating = true;
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }

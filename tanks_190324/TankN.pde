@@ -86,8 +86,10 @@ public class TankN extends Tank {
     // displayKnownNodes();
 
 
-
-    this.isEnemyInfront = seesEnemy(reading);
+    isEnemyInfront = seesEnemy(reading);
+    if (isEnemyInfront && hasShot){
+      currentPlan = planner.generateFireCannonPlan();
+    }
     // grid.display();
 
     if(currentPlan == null || !currentPlan.hasMoreSteps() || !currentPlan.isValid()){
