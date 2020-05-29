@@ -174,6 +174,17 @@ class Grid {
 
     return rn;
   }
+
+  Node getFirstEnemy() {
+    for (Node[] a : nodes){
+      for (Node n : a){
+        if (n.nodeContent == Content.ENEMY){
+          return n;
+        }
+      }
+    }
+    return null;
+  }
   
   boolean updateContent(Grid g) {
     for (Node[] a : g.nodes){

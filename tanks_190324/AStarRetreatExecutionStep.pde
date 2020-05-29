@@ -17,7 +17,7 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
     }
 
     public boolean isValid(){
-        return (!tank.isImmobilized || !retreatPath.isEmpty());
+        return (!tank.isImmobilized || !tankN.retreatPath.isEmpty());
     }
 
     public void execute(){
@@ -124,12 +124,11 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
         }*/
         Sensor s = tank.getSensor("VISUAL");
         SensorReading reading = s.readValue();
-        Node tempNode;
         
         SensorVisuals sv = (SensorVisuals) s;
 
         if(!tankN.retreatPath.isEmpty()){
-                currentNode = tankN.retreatPath.pop();
+            currentNode = tankN.retreatPath.pop();
             while (sv.isNodeInFront(currentNode, reading) && !tankN.retreatPath.isEmpty()){
                 previousNode = currentNode;
                 currentNode = tankN.retreatPath.pop();

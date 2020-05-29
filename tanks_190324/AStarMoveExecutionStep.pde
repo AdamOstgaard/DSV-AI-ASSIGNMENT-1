@@ -5,6 +5,7 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
     TankN tankN;
     boolean moveStarted = false;
     Stack<Node> movePath;
+    private float target_rotation;
 
     Node currentNode;
     Node previousNode;
@@ -19,9 +20,11 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
     }
 
     public void execute(){
+        
         if(isFulfilled()){
             println("Fulfilled!!");
             tank.stopMoving();
+            moveStarted = false;
             return;
         }
         // AStar
@@ -60,24 +63,41 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
             }
             
         }
+        Node targetNode;
         if (!moveStarted){
-            println("starting retreat!");
+            println("starting move!");
             moveStarted = true;
-            astar(grid.getNearestNode(tank.position), grid.getNearestNode(tank.startpos));
-            tankN.movePath = //tankN.known.getNearestNode(tank.position).getPath();
-            tankN.known.getNearestNode(tank.startpos).getPath();
+            
+            targetNode = tankN.known.getFirstEnemy();
+            
+            Node randomUnknown = tankN.known.getNearestNode(tankN.known.getRandomNodePosition());
+            while(randomUnknown.nodeContent != Content.UNKNOWN){
+                randomUnknown = tankN.known.getNearestNode(tankN.known.getRandomNodePosition());
+            }
+            if (targetNode == null) {
+                targetNode = randomUnknown;
+            }
+            if (targetNode != null){
+                astar(grid.getNearestNode(tank.position), targetNode);
+                tankN.movePath = targetNode.getPath();
+            }
+            println("ASTAR TARGET: " + targetNode.position);
+            
             movePath = tankN.movePath;
             movePath.pop();
         }
+        
     }
+    
 
     public boolean isFulfilled(){
-        if(tempTarget != null && tempTarget == grid.getNearestNode(tank.position)){
+        if (movePath != null)
+            return movePath.isEmpty();
+        /*if(tempTarget != null && tempTarget == grid.getNearestNode(tank.position)){
             tankN.known.getNearestNode(tank.position).nodeContent = Content.EMPTY;
             return true;
-        }
+        }*/
         return false;
-        
     }
 
     private void wander() {

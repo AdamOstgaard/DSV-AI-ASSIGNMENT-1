@@ -29,7 +29,7 @@ public class ExecutionPlanner {
     }
     private ExecutionPlan generateNormalPlan(){
         ArrayList<ExecutionPlanStep> steps = new ArrayList<ExecutionPlanStep>();
-        steps.add(new WalkToRandomExecutionStep(tank));
+        steps.add(new AStarMoveExecutionStep(tank));
         steps.add(new LookAroundForEnemyExecutionStep(tank));
         steps.add(new FireCannonExecutionStep(tank));
         steps.add(new AStarRetreatExecutionStep(tank));
