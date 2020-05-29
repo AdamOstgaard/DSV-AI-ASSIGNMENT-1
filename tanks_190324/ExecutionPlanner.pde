@@ -33,6 +33,7 @@ public class ExecutionPlanner {
         steps.add(new LookAroundForEnemyExecutionStep(tank));
         steps.add(new FireCannonExecutionStep(tank));
         steps.add(new AStarRetreatExecutionStep(tank));
+        steps.add(new RadioUpdateTeamExecutionStep(tank));
         steps.add(new PauseExectutionStep(tank, 1000));
         
 
