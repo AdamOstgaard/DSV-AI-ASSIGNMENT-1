@@ -1,3 +1,9 @@
+/* Group 13
+Authors:
+Adam Östgaard
+Sebastian Kappelin
+Niklas Friberg
+*/
 class Team2 extends Team {
 
   Team2(int team_id, int tank_size, color c, 

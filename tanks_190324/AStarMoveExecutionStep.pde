@@ -5,7 +5,7 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
     TankN tankN;
     boolean moveStarted = false;
     Stack<Node> movePath;
-    private float target_rotation;
+    private float target_rotation = -1;
 
     Node currentNode;
     Node previousNode;
@@ -33,7 +33,7 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
                 stateFlag = StateFlag.ARRIVED_MOVE;
             }
 
-            if(!tank.isMoving && !tank.isRotating && stateFlag != StateFlag.ROTATING){
+            if(!tank.isMoving && !tank.isRotating){
                 stateFlag = StateFlag.IDLE;
             }
 
@@ -43,17 +43,16 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
                     wander();
                     break;
                 case ARRIVED_ROTATE:
-                    stateFlag = StateFlag.WANDERING;
-                    wander();
+                    stateFlag = StateFlag.IDLE;
                     break;
                 case WANDERING:
                     break;
                 case ARRIVED_MOVE:
-                    stateFlag = StateFlag.IDLE;
-                    wander();
+                    stateFlag = StateFlag.ROTATING;
                     break;
                 case ROTATING:
                     if(round10(fixAngle(degrees(tank.heading))) == round10(fixAngle(degrees(target_rotation)))){
+                        //round10(fixAngle(degrees(tank.heading))) != round10(fixAngle(degrees(target_rotation)));
                         println("FINNISHED ROTATING");
                         stateFlag = StateFlag.ARRIVED_ROTATE;
                         break;
@@ -64,11 +63,15 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
             
         }
         Node targetNode;
+        ArrayList<Node> targetNeighbours;
         if (!moveStarted){
             println("starting move!");
             moveStarted = true;
-            
-            targetNode = tankN.known.getFirstEnemy();
+            targetNode = tankN.known.getRandomEnemy();
+            if(targetNode != null){
+                targetNeighbours = tankN.known.getNeighbours(targetNode.col, targetNode.row);
+                targetNode = targetNeighbours.get(new Random().nextInt(targetNeighbours.size()));
+            }
             
             Node randomUnknown = tankN.known.getNearestNode(tankN.known.getRandomNodePosition());
             while(randomUnknown.nodeContent != Content.UNKNOWN){
@@ -82,9 +85,9 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
                 tankN.movePath = targetNode.getPath();
             }
             println("ASTAR TARGET: " + targetNode.position);
-            
+            tankN.movePath.pop();
             movePath = tankN.movePath;
-            movePath.pop();
+            
         }
         
     }
@@ -159,10 +162,9 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
         }
         neighbours = tankN.known.getNeighbours(current.col, current.row);
         for (Node neighbour : neighbours){
-            if (neighbour.nodeContent == Content.FRIEND ||
-            neighbour.nodeContent == Content.ENEMY ||
-            neighbour.nodeContent == Content.OBSTACLE ||
-            closed.contains(neighbour)){
+            if (neighbour.nodeContent == Content.ENEMY ||
+                neighbour.nodeContent == Content.OBSTACLE ||
+                closed.contains(neighbour)){
               continue;
             }
             if (!closed.contains(neighbour) || 

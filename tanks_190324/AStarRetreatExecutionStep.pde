@@ -17,7 +17,7 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
     }
 
     public boolean isValid(){
-        return (!tank.isImmobilized || !tankN.retreatPath.isEmpty());
+        return (!tank.isImmobilized || tankN.retreatPath != null && !tankN.retreatPath.isEmpty());
     }
 
     public void execute(){
@@ -65,7 +65,7 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
     }
     
     public boolean isFulfilled(){
-        return tank.isAtHomebase;
+        return tank.isAtHomebase || tankN.retreatPath != null && tankN.retreatPath.isEmpty();
     }
 
     boolean astar(Node start, Node end) {

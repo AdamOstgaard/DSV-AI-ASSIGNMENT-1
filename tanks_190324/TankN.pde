@@ -13,6 +13,8 @@ public class TankN extends Tank {
   Stack<Node> movePath;
   ExecutionPlanner planner;
   ExecutionPlan currentPlan = null;
+  Sensor s;
+  SensorReading reading;
 
   TankN(int id, Team team, PVector startpos, float diameter, CannonBall ball) {
     super(id, team, startpos, diameter, ball);
@@ -56,8 +58,8 @@ public class TankN extends Tank {
   public void updateLogic() {
     super.updateLogic();
 
-    Sensor s = getSensor("VISUAL");
-    SensorReading reading = s.readValue();
+    s = getSensor("VISUAL");
+    reading = s.readValue();
 
     updateKnownObjects(reading);
     updateKnownNodes(s, reading);
@@ -178,10 +180,11 @@ public class TankN extends Tank {
     SensorVisuals sensorVisuals = (SensorVisuals)s;
     for (int col = 0; col < known.nodes.length; col++){
       for (int row = 0; row < known.nodes[col].length; row++){
-        boolean inFront = sensorVisuals.isNodeInFront(known.nodes[col][row], sr);
+        Node currentNode = known.nodes[col][row];
+        boolean inFront = sensorVisuals.isNodeInFront(currentNode, sr);
         if (inFront){
-          if (known.nodes[col][row].nodeContent != Content.OBSTACLE)
-            known.nodes[col][row].nodeContent = Content.EMPTY;
+          if (currentNode.nodeContent != Content.OBSTACLE && currentNode.nodeContent == Content.UNKNOWN)
+            currentNode.nodeContent = Content.EMPTY;
         }
       }
     }

@@ -175,30 +175,31 @@ class Grid {
     return rn;
   }
 
-  Node getFirstEnemy() {
+  Node getRandomEnemy() {
+    Node enemy = null;
     for (Node[] a : nodes){
       for (Node n : a){
         if (n.nodeContent == Content.ENEMY){
-          return n;
+          enemy = n;
+          if(new Random(1).nextInt() > 0){
+            return enemy;
+          }
         }
       }
     }
-    return null;
+    return enemy;
   }
   
   boolean updateContent(Grid g) {
     for (Node[] a : g.nodes){
       for (Node n : a){
         if(n.nodeContent == Content.UNKNOWN){
-          println("UNKNOWN SKIPPED");
           continue;
         }
         if (nodes[n.col][n.row].nodeContent != Content.OBSTACLE){
           nodes[n.col][n.row].nodeContent = n.nodeContent;
-          println("COPIED: " + n.nodeContent);
         }
         }
-        println("NEW COL");
     }
     return true;
   }
