@@ -127,6 +127,9 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
         Sensor s = tank.getSensor("VISUAL");
         SensorReading reading = s.readValue();
         SensorVisuals sv = (SensorVisuals) s;
+        if (reading == null){
+            return true;
+        }
         return sv.isNodeInFront(n, reading);
   }
 
