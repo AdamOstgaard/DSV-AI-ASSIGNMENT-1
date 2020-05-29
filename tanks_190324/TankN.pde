@@ -10,6 +10,7 @@ public class TankN extends Tank {
   Grid known;
   boolean isRetreating;
   Stack<Node> retreatPath;
+  Stack<Node> movePath;
   ExecutionPlanner planner;
   ExecutionPlan currentPlan = null;
 

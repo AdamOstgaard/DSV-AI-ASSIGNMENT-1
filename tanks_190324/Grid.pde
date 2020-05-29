@@ -175,6 +175,22 @@ class Grid {
     return rn;
   }
   
+  boolean updateContent(Grid g) {
+    for (Node[] a : g.nodes){
+      for (Node n : a){
+        if(n.nodeContent == Content.UNKNOWN){
+          println("UNKNOWN SKIPPED");
+          continue;
+        }
+        if (nodes[n.col][n.row].nodeContent != Content.OBSTACLE){
+          nodes[n.col][n.row].nodeContent = n.nodeContent;
+          println("COPIED: " + n.nodeContent);
+        }
+        }
+        println("NEW COL");
+    }
+    return true;
+  }
   //***************************************************
   // Används troligen tillsammans med getNearestNode().empty
   // om tom så addContent(Sprite)
