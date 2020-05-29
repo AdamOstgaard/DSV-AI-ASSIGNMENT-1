@@ -5,6 +5,7 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
     boolean retreatStarted = false;
     Stack<Node> retreatPath;
     private Node currentGoalNode;
+    boolean pathExists = true;
 
     Node currentNode;
     Node previousNode;
@@ -12,10 +13,11 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
 
   public AStarRetreatExecutionStep(TankN tank){
         super(tank);
+        retreatPath = new Stack<Node>();
     }
 
     public boolean isValid(){
-        return (!tank.isImmobilized || retreatPath.isEmpty());
+        return !tank.isImmobilized && pathExists;
     }
 
     public void execute(){
@@ -57,6 +59,9 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
                 retreatPath = tank.known.getNearestNode(tank.startpos).getPath();
                 if (!retreatPath.isEmpty())
                     retreatPath.pop();
+            }
+            else{
+                pathExists = false;
             }
         }
 

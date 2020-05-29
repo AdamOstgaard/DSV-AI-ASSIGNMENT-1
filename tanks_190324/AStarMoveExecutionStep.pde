@@ -6,16 +6,20 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
     Stack<Node> movePath;
     private Node goalNode;
     Node currentNode, previousNode, currentGoalNode;
+    boolean pathExists = true;
     
 
   public AStarMoveExecutionStep(TankN tank){
         super(tank);
-        goalNode = tank.known.getRandomUnknownNode();
+        goalNode = tank.known.getFirstEnemy();
+        if (goalNode == null){
+            goalNode = tank.known.getRandomUnknownNode();
+        } 
         movePath = new Stack<Node>();
     }
 
     public boolean isValid(){
-        return (!tank.isImmobilized || movePath.isEmpty());
+        return !tank.isImmobilized && pathExists;
     }
 
     public void execute(){
@@ -60,6 +64,8 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
                 if (!movePath.isEmpty())
                     movePath.pop();
             }
+            else
+                pathExists = false;
         }
 
     }
@@ -94,7 +100,7 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
         neighbours = tank.known.getNeighbours(current.col, current.row);
         for (Node neighbour : neighbours){
             if (neighbour.nodeContent == Content.FRIEND ||
-            neighbour.nodeContent == Content.ENEMY ||
+            (neighbour.nodeContent == Content.ENEMY && neighbour != goalNode) ||
             neighbour.nodeContent == Content.OBSTACLE ||
             closed.contains(neighbour)){
               continue;

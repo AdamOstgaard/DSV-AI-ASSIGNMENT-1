@@ -16,7 +16,6 @@ public class RadioUpdateTeamExecutionStep extends ExecutionPlanStep {
             tN.known.updateContent(tank.known);
         }
         updated = true;
-        tank.isRetreating = false;
     }
     
     public boolean isFulfilled(){
