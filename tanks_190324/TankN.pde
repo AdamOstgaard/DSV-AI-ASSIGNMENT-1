@@ -8,7 +8,8 @@ Niklas Friberg
 public class TankN extends Tank {
   ArrayList <Node> visitedNodes;
   Grid known;
-
+  boolean isRetreating;
+  Stack<Node> retreatPath;
   ExecutionPlanner planner;
   ExecutionPlan currentPlan = null;
 
