@@ -4,6 +4,8 @@ Adam Östgaard
 Sebastian Kappelin
 Niklas Friberg
 */
+import java.util.Random;
+
 class Grid {
   int cols, rows;
   int grid_size;
@@ -173,6 +175,40 @@ class Grid {
     PVector rn = nodes[c][r].position;
 
     return rn;
+  }
+
+  Node getRandomUnknownNode(){
+    ArrayList<Node> unknownNodes = new ArrayList<Node>();
+    for (int col = 0; col < nodes.length; col ++){
+      for (int row = 0; row < nodes[col].length; row++){
+        if(nodes[col][row].nodeContent == Content.UNKNOWN)
+          unknownNodes.add(nodes[col][row]);
+      }
+    }
+    if (!unknownNodes.isEmpty()){
+      Random rand = new Random();
+      return unknownNodes.get(rand.nextInt(unknownNodes.size()));
+    }
+    else{
+      for (int col = 0; col < nodes.length; col ++){
+        for (int row = 0; row < nodes[col].length; row++){
+          if(nodes[col][row].nodeContent == Content.EMPTY)
+            nodes[col][row].nodeContent = Content.UNKNOWN;
+        }
+      }
+      return getRandomUnknownNode();
+    }
+  }
+
+  Node getFirstEnemy() {
+    for (Node[] a : nodes){
+      for (Node n : a){
+        if (n.nodeContent == Content.ENEMY){
+          return n;
+        }
+      }
+    }
+    return null;
   }
   
   boolean updateContent(Grid g) {

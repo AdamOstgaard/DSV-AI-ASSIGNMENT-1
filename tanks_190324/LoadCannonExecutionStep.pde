@@ -1,5 +1,5 @@
 public class LoadCannonExecutionStep extends ExecutionPlanStep {
-    public LoadCannonExecutionStep(Tank tank){
+    public LoadCannonExecutionStep(TankN tank){
         super(tank);
     }
 

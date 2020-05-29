@@ -1,11 +1,9 @@
 public class RadioUpdateTeamExecutionStep extends ExecutionPlanStep {
     
-    TankN tankN;
     boolean updated = false;
 
-    public RadioUpdateTeamExecutionStep(Tank tank){
+    public RadioUpdateTeamExecutionStep(TankN tank){
         super(tank);
-        tankN = (TankN) tank;
     }
 
     public boolean isValid(){
@@ -15,9 +13,10 @@ public class RadioUpdateTeamExecutionStep extends ExecutionPlanStep {
     public void execute(){
         for (Tank t : teams[0].tanks){
             TankN tN = (TankN) t;
-            tN.known.updateContent(tankN.known);
+            tN.known.updateContent(tank.known);
         }
         updated = true;
+        tank.isRetreating = false;
     }
     
     public boolean isFulfilled(){

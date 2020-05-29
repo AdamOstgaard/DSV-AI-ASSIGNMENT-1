@@ -19,6 +19,7 @@ public class TankN extends Tank {
     planner = new ExecutionPlanner(this);
     visitedNodes = new ArrayList <Node>();
     known = new Grid(cols, rows, grid_size);
+    isRetreating = false;
   }
 
   //Hämtar grann-noder till nuvarande noden.
@@ -50,6 +51,20 @@ public class TankN extends Tank {
     visitedNodes.add(grid.getNearestNode(position));
     //known.getNearestNode(position).nodeContent = Content.EMPTY;
     println("ARRIVED AT: " + known.getNearestNode(position).nodeContent);
+  }
+
+    // Tanken meddelas om kollision med trädet.
+  public void message_collision(Tree other) {
+    println("*** Tank["+ this.getId() + "].collision(Tree)");
+    currentPlan = planner.generateWalkToRandomPlan();
+    //println("Tank.COLLISION");
+  }
+
+  // Tanken meddelas om kollision med den andra tanken.
+  public void message_collision(Tank other) {
+    println("*** Tank["+ this.getId() + "].collision(Tank)");
+    currentPlan = planner.generateWalkToRandomPlan();
+    //println("Tank.COLLISION");
   }
 
   //Lagt till uppdatering av states, tanken roterar ett varv efter dan anlänt till en ny nod.
