@@ -132,7 +132,7 @@ class Tank extends Sprite { //<>//
 
     this.ball = ball;
     this.hasShot = false;
-    this.maxspeed = 8; //3;
+    this.maxspeed = 3;
     this.maxforce = 1;
     this.maxrotationspeed = radians(3);
     this.rotation_speed = 0;
