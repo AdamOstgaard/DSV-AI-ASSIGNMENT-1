@@ -6,7 +6,7 @@ public class SearchForEnemyExecutionStep extends ExecutionPlanStep {
     private StateFlag stateFlag = StateFlag.IDLE; 
     private Node tempTarget;
 
-    public SearchForEnemyExecutionStep(Tank tank){
+    public SearchForEnemyExecutionStep(TankN tank){
         super(tank);
     }
 

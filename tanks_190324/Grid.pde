@@ -4,6 +4,8 @@ Adam Östgaard
 Sebastian Kappelin
 Niklas Friberg
 */
+import java.util.Random;
+
 class Grid {
   int cols, rows;
   int grid_size;

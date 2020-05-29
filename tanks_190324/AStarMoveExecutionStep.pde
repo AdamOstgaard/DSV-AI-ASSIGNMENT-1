@@ -1,35 +1,35 @@
+
 public class AStarMoveExecutionStep extends ExecutionPlanStep {
-    
+
     private StateFlag stateFlag = StateFlag.IDLE; 
-    private Node tempTarget = null;
-    TankN tankN;
     boolean moveStarted = false;
     Stack<Node> movePath;
     private float target_rotation = -1;
+    private Node goalNode;
+    Node currentNode, previousNode, currentGoalNode;
+    
 
-    Node currentNode;
-    Node previousNode;
 
-    public AStarMoveExecutionStep(Tank tank){
+  public AStarMoveExecutionStep(TankN tank){
         super(tank);
-        tankN = (TankN)tank;
+        goalNode = tank.known.getRandomUnknownNode();
+        movePath = new Stack<Node>();
     }
 
     public boolean isValid(){
-        return !tank.isImmobilized;
+        return (!tank.isImmobilized || movePath.isEmpty());
     }
 
     public void execute(){
-        
         if(isFulfilled()){
             println("Fulfilled!!");
+            tank.isMoving = false;
             tank.stopMoving();
-            moveStarted = false;
             return;
         }
         // AStar
         if (moveStarted){
-            if(tempTarget != null && tempTarget == grid.getNearestNode(tank.position) && stateFlag == StateFlag.WANDERING){
+            if(currentGoalNode != null && currentGoalNode == tank.known.getNearestNode(tank.position) && stateFlag == StateFlag.WANDERING){
                 stateFlag = StateFlag.ARRIVED_MOVE;
             }
 
@@ -46,6 +46,9 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
                     stateFlag = StateFlag.IDLE;
                     break;
                 case WANDERING:
+                    if (furtherNodeinFront()){
+                        wander();
+                    }
                     break;
                 case ARRIVED_MOVE:
                     stateFlag = StateFlag.ROTATING;
@@ -59,6 +62,7 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
                     }
                     tank.turnLeft();
                     break;
+
             }
             
         }
@@ -89,56 +93,15 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
             movePath = tankN.movePath;
             
         }
-        
+
     }
     
-
     public boolean isFulfilled(){
-        if (movePath != null)
-            return movePath.isEmpty();
-        /*if(tempTarget != null && tempTarget == grid.getNearestNode(tank.position)){
-            tankN.known.getNearestNode(tank.position).nodeContent = Content.EMPTY;
-            return true;
-        }*/
-        return false;
+        return grid.getNearestNode(tank.position) == grid.getNearestNode(goalNode.position);
     }
 
-    private void wander() {
-
-        Sensor s = tank.getSensor("VISUAL");
-        SensorReading reading = s.readValue();
-        Node tempNode;
-        
-        SensorVisuals sv = (SensorVisuals) s;
-
-        if(!tankN.movePath.isEmpty()){
-                currentNode = tankN.movePath.pop();
-            while (sv.isNodeInFront(currentNode, reading) && !tankN.movePath.isEmpty()){
-                previousNode = currentNode;
-                currentNode = tankN.movePath.pop();
-            }
-            if (!sv.isNodeInFront(currentNode, reading)){
-                if(previousNode != null){
-                    tank.moveTo(previousNode.position);
-                    tempTarget = previousNode;
-                    previousNode = null;
-                    return;
-                } else {
-                    tank.moveTo(currentNode.position);
-                    tempTarget = currentNode;
-                    return;
-                }
-                
-            }
-        }
-        if(currentNode != null){
-            tank.moveTo(currentNode.position);
-            tempTarget = currentNode;
-        }
-    }
-
-        boolean astar(Node start, Node end) {
-        tankN.known.resetPathVariables();
+    boolean astar(Node start, Node end) {
+        tank.known.resetPathVariables();
         ArrayList<Node> open = new ArrayList<Node>();
         start.g = 0;
         open.add(start);
@@ -160,7 +123,7 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
             println("END REACHED");
             return true;
         }
-        neighbours = tankN.known.getNeighbours(current.col, current.row);
+        neighbours = tank.known.getNeighbours(current.col, current.row);
         for (Node neighbour : neighbours){
             if (neighbour.nodeContent == Content.ENEMY ||
                 neighbour.nodeContent == Content.OBSTACLE ||
@@ -184,4 +147,80 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
     }
     return false;
   }
+
+  boolean furtherNodeinFront(){
+      if (movePath.isEmpty()){
+          return false;
+      }
+      else{
+            boolean result = false;
+            Sensor s = tank.getSensor("VISUAL");
+            SensorReading reading = s.readValue();
+            SensorVisuals sv = (SensorVisuals) s;
+            currentNode = movePath.pop();
+            while (sv.isNodeInFront(currentNode, reading) && !movePath.isEmpty()){
+                result = true;
+                previousNode = currentNode;
+                currentNode = movePath.pop();
+            }
+            movePath.push(currentNode);
+            return result;
+      }
+  }
+
+  private void wander() {
+      if (!movePath.isEmpty()){
+          currentGoalNode = movePath.pop();
+          tank.moveTo(currentGoalNode.position);
+      }
+  }
+
+    // private void wander() {
+    //     /*println("waypoints: ");
+    //     while(!movePath.isEmpty()){
+    //         println(movePath.pop());
+    //     }*/
+    //     Sensor s = tank.getSensor("VISUAL");
+    //     SensorReading reading = s.readValue();
+        
+    //     SensorVisuals sv = (SensorVisuals) s;
+
+    //     if(!movePath.isEmpty()){
+    //         currentNode = movePath.pop();
+    //         while (sv.isNodeInFront(currentNode, reading) && !movePath.isEmpty()){
+    //             previousNode = currentNode;
+    //             currentNode = movePath.pop();
+    //         }
+    //         if (!sv.isNodeInFront(currentNode, reading)){
+    //             if(previousNode != null){
+    //                 tank.moveTo(previousNode.position);
+    //                 goalNode = previousNode;
+    //                 previousNode = null;
+    //                 return;
+    //             } else {
+    //                 tank.moveTo(currentNode.position);
+    //                 goalNode = currentNode;
+    //                 return;
+    //             }
+                
+    //         }
+    //     }
+    //     if(currentNode != null){
+    //         tank.moveTo(currentNode.position);
+    //         goalNode = currentNode;
+    //     }
+
+    //     /*if(!tank.movePath.isEmpty()){
+    //         tempNode = tank.movePath.pop();
+    //         println("POPPED: " + tempNode.position);
+    //         tank.moveTo(tempNode.position);
+    //         goalNode = tempNode;
+    //         return;
+    //     }*/
+    //     println("stack empty");
+    // }
 }
+
+    
+
+  
