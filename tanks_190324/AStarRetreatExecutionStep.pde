@@ -43,6 +43,15 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
                     wander();
                     break;
                 case WANDERING:
+                    if (!nodeInFront(currentGoalNode)){
+                        if (tank.id == 2){
+                            System.out.println("replanning");
+                        }
+                        replan();
+                    }
+                    else if (furtherNodeinFront()){
+                        wander();
+                    }
                     break;
                 case ARRIVED_MOVE:
                     stateFlag = StateFlag.IDLE;
@@ -54,16 +63,8 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
         if (!retreatStarted){
             println("starting retreat!");
             retreatStarted = true;
-            if (astar(tank.known.getNearestNode(tank.position), tank.known.getNearestNode(tank.startpos))){
-                System.out.println("astar retreat success");
-                retreatPath = tank.known.getNearestNode(tank.startpos).getPath();
-                if (!retreatPath.isEmpty())
-                    retreatPath.pop();
+            replan();
             }
-            else{
-                pathExists = false;
-            }
-        }
 
     }
     
@@ -96,8 +97,7 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
         }
         neighbours = tank.known.getNeighbours(current.col, current.row);
         for (Node neighbour : neighbours){
-            if (neighbour.nodeContent == Content.FRIEND ||
-            neighbour.nodeContent == Content.ENEMY ||
+            if (neighbour.nodeContent == Content.ENEMY ||
             neighbour.nodeContent == Content.OBSTACLE ||
             closed.contains(neighbour)){
               continue;
@@ -106,6 +106,9 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
                 current.g + PVector.dist(current.position, neighbour.position) < neighbour.g){
                 if (neighbour.nodeContent == Content.UNKNOWN){
                     neighbour.g = current.g + PVector.dist(current.position, neighbour.position) * 2;
+                }
+                else if (neighbour.nodeContent == Content.FRIEND){
+                    neighbour.g = current.g + PVector.dist(current.position, neighbour.position) * 10;
                 }
               else{
                 neighbour.g = current.g + PVector.dist(current.position, neighbour.position);
@@ -118,6 +121,13 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
       }
     }
     return false;
+  }
+
+    boolean nodeInFront(Node n){
+        Sensor s = tank.getSensor("VISUAL");
+        SensorReading reading = s.readValue();
+        SensorVisuals sv = (SensorVisuals) s;
+        return sv.isNodeInFront(n, reading);
   }
 
   boolean furtherNodeinFront(){
@@ -138,6 +148,18 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
             retreatPath.push(currentNode);
             return result;
       }
+  }
+
+    void replan(){
+        stateFlag = StateFlag.IDLE; 
+        // boolean moveStarted = false;
+        if (astar(tank.known.getNearestNode(tank.position), tank.known.getNearestNode(tank.startpos))){
+            retreatPath = tank.known.getNearestNode(tank.startpos).getPath();
+            if (!retreatPath.isEmpty())
+                retreatPath.pop();
+            }
+            else
+                pathExists = false;
   }
 
   private void wander() {

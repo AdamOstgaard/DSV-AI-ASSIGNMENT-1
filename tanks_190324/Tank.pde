@@ -359,8 +359,18 @@ class Tank extends Sprite { //<>//
 
   public Tank[] getFriendlyTanks(){
     Tank[] friendly = new Tank[2];
-    friendly[0] = allTanks[1];
-    friendly[1] = allTanks[2];
+    if (id == 0){
+      friendly[0] = allTanks[1];
+      friendly[1] = allTanks[2];
+    }
+    if (id == 1){
+      friendly[0] = allTanks[0];
+      friendly[1] = allTanks[2];
+    }
+    if (id == 2){
+      friendly[0] = allTanks[0];
+      friendly[1] = allTanks[1];
+    }
     return friendly;
   }  
   

@@ -57,6 +57,7 @@ class SensorVisuals extends Sensor {
         float a = t.radius;
         float angleDiff = atan(a / d);
         
+        float heading = tank.heading;
         float heading2 = round(fixAngle(degrees(tank.heading)));
 //
         // pushMatrix();
@@ -68,8 +69,11 @@ class SensorVisuals extends Sensor {
         // line(0, 0, 500, 0);
         // stroke(0,0,0);
         // popMatrix();
+
         
-        return heading2> round(fixAngle(degrees(diff - angleDiff))) && heading2 < round(fixAngle(degrees(diff + angleDiff)));
+        
+        return (heading2> round(fixAngle(degrees(diff - angleDiff))) && heading2 < round(fixAngle(degrees(diff + angleDiff))))
+        || (heading > diff - angleDiff && heading < diff + angleDiff);
     }
         
     boolean inBase(PVector v, Team team){
@@ -117,7 +121,11 @@ class SensorVisuals extends Sensor {
         float a = n.radius;
         float angleDiff = atan(a / d);
         
+        float heading = tank.heading;
         float heading2 = round(fixAngle(degrees(tank.heading)));
+        // if (tank.id == 0){
+        //     System.out.println("heading: " + tank.heading + " heading2: " + heading2);
+        // }
 
         float srDistance = 0;
         if (sr != null){
@@ -126,6 +134,16 @@ class SensorVisuals extends Sensor {
             srDistance = PVector.dist(tank.position, tempNode.position);
         }
 
+        if (sr != null) {
+            if(heading > diff - angleDiff && heading < diff + angleDiff && d < srDistance 
+            && ( (!inBase(tank.position, enemyTeam) && !inBase(n.position, enemyTeam) ) || inBase(tank.position, enemyTeam) )){
+                return true;
+            }
+        }
+            else if(heading > diff - angleDiff && heading < diff + angleDiff 
+            && ( (!inBase(tank.position, enemyTeam) && !inBase(n.position, enemyTeam) ) || inBase(tank.position, enemyTeam) ) ){
+                return true;
+            }
         if (heading2> round(fixAngle(degrees(diff - angleDiff))) && heading2 < round(fixAngle(degrees(diff + angleDiff)))){
             if (sr != null) {
                 if(d < srDistance && ( (!inBase(tank.position, enemyTeam) && !inBase(n.position, enemyTeam) ) || inBase(tank.position, enemyTeam) )){
@@ -162,16 +180,16 @@ class SensorVisuals extends Sensor {
        
 //         float heading = tank.heading();
 
-//         if (sr != null) {
-//             if(heading > diff - angleDiff && heading < diff + angleDiff && d < srDistance 
-//             && ( (!inBase(tank.position, enemyTeam) && !inBase(n.position, enemyTeam) ) || inBase(tank.position, enemyTeam) )){
-//                 return true;
-//             }
-//         }
-//         else if(heading > diff - angleDiff && heading < diff + angleDiff 
-//         && ( (!inBase(tank.position, enemyTeam) && !inBase(n.position, enemyTeam) ) || inBase(tank.position, enemyTeam) ) ){
-//             return true;
-//         }
+        // if (sr != null) {
+        //     if(heading > diff - angleDiff && heading < diff + angleDiff && d < srDistance 
+        //     && ( (!inBase(tank.position, enemyTeam) && !inBase(n.position, enemyTeam) ) || inBase(tank.position, enemyTeam) )){
+        //         return true;
+        //     }
+        // }
+        // else if(heading > diff - angleDiff && heading < diff + angleDiff 
+        // && ( (!inBase(tank.position, enemyTeam) && !inBase(n.position, enemyTeam) ) || inBase(tank.position, enemyTeam) ) ){
+        //     return true;
+        // }
 //     return false;
 //   }
 

@@ -77,14 +77,18 @@ public class TankN extends Tank {
     updateKnownObjects(reading);
     updateKnownNodes(s, reading);
 
+
+
     // Det här kan användas sen för att kapa ner antalet steg från astar.
     // SensorVisuals sv = (SensorVisuals) s;
     // boolean nodeInFront = sv.isNodeInFront(node n, reading);
 
     // Testmetoder
-    // printKnownNodes();
-    // displayKnownNodes();
-
+   
+    // if (id == 2){
+    //   // printKnownNodes();
+    //   // displayKnownNodes();
+    // }
 
     isEnemyInfront = seesEnemy(reading);
     if (isEnemyInfront && hasShot){
