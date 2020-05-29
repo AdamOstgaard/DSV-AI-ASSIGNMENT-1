@@ -1,5 +1,5 @@
 public class FireCannonExecutionStep extends ExecutionPlanStep {
-    public FireCannonExecutionStep(Tank tank){
+    public FireCannonExecutionStep(TankN tank){
         super(tank);
     }
 

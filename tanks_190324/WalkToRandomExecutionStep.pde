@@ -1,10 +1,8 @@
 public class WalkToRandomExecutionStep extends ExecutionPlanStep {
     private Node tempTarget = null;
-    TankN tankN;
 
-    public WalkToRandomExecutionStep(Tank tank){
+    public WalkToRandomExecutionStep(TankN tank){
         super(tank);
-        tankN = (TankN)tank;
     }
 
     public boolean isValid(){
@@ -24,7 +22,7 @@ public class WalkToRandomExecutionStep extends ExecutionPlanStep {
 
     public boolean isFulfilled(){
         if(tempTarget != null && tempTarget == grid.getNearestNode(tank.position)){
-            tankN.known.getNearestNode(tank.position).nodeContent = Content.EMPTY;
+            tank.known.getNearestNode(tank.position).nodeContent = Content.EMPTY;
             return true;
         }
         return false;

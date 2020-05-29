@@ -2,7 +2,7 @@ public class LookAroundForEnemyExecutionStep extends ExecutionPlanStep {
     private float target_rotation = -1;
     private boolean isTurning = false;
 
-    public LookAroundForEnemyExecutionStep(Tank tank){
+    public LookAroundForEnemyExecutionStep(TankN tank){
         super(tank);
     }
 
