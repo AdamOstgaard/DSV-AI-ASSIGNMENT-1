@@ -14,7 +14,13 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
         goalNode = tank.known.getFirstEnemy();
         if (goalNode == null){
             goalNode = tank.known.getRandomUnknownNode();
-        } 
+        }
+    //    if (tank.id == 0)
+    //         goalNode = tank.known.nodes[14][0];
+        // if (tank.id == 1)
+        //     goalNode = tank.known.nodes[14][2];
+    //     if (tank.id == 2)
+    //         goalNode = tank.known.nodes[14][4]; 
         movePath = new Stack<Node>();
     }
 
@@ -45,9 +51,18 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
                     wander();
                     break;
                 case WANDERING:
-                    if (furtherNodeinFront()){
+                    if (!nodeInFront(currentGoalNode) && !tank.isRotating){
+                        System.out.println("replanning");
+                        replan();
+                    }
+                    else if (furtherNodeinFront()){
                         wander();
                     }
+                    // if (furtherNodeinFront()){
+                    //     wander();
+                    // }
+                    // else
+                    //     replan();
                     break;
                 case ARRIVED_MOVE:
                     stateFlag = StateFlag.IDLE;
@@ -59,13 +74,7 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
         if (!moveStarted){
             println("starting move!");
             moveStarted = true;
-            if (astar(tank.known.getNearestNode(tank.position), goalNode)){
-                movePath = tank.known.getNearestNode(goalNode.position).getPath();
-                if (!movePath.isEmpty())
-                    movePath.pop();
-            }
-            else
-                pathExists = false;
+            replan();
         }
 
     }
@@ -99,8 +108,7 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
         }
         neighbours = tank.known.getNeighbours(current.col, current.row);
         for (Node neighbour : neighbours){
-            if (neighbour.nodeContent == Content.FRIEND ||
-            (neighbour.nodeContent == Content.ENEMY && neighbour != goalNode) ||
+            if ((neighbour.nodeContent == Content.ENEMY && neighbour != goalNode) ||
             neighbour.nodeContent == Content.OBSTACLE ||
             closed.contains(neighbour)){
               continue;
@@ -109,6 +117,9 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
                 current.g + PVector.dist(current.position, neighbour.position) < neighbour.g){
                 if (neighbour.nodeContent == Content.UNKNOWN){
                     neighbour.g = current.g + PVector.dist(current.position, neighbour.position) * 2;
+                }
+                else if (neighbour.nodeContent == Content.FRIEND){
+                    neighbour.g = current.g + PVector.dist(current.position, neighbour.position) * 10;
                 }
               else{
                 neighbour.g = current.g + PVector.dist(current.position, neighbour.position);
@@ -123,9 +134,28 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
     return false;
   }
 
+  void replan(){
+        stateFlag = StateFlag.IDLE; 
+        // boolean moveStarted = false;
+        if (astar(tank.known.getNearestNode(tank.position), goalNode)){
+            movePath = tank.known.getNearestNode(goalNode.position).getPath();
+            if (!movePath.isEmpty())
+                movePath.pop();
+            }
+            else
+                pathExists = false;
+  }
+
+  boolean nodeInFront(Node n){
+        Sensor s = tank.getSensor("VISUAL");
+        SensorReading reading = s.readValue();
+        SensorVisuals sv = (SensorVisuals) s;
+        return sv.isNodeInFront(n, reading);
+  }
+
   boolean furtherNodeinFront(){
       if (movePath.isEmpty()){
-          return false;
+          return true;
       }
       else{
             boolean result = false;
