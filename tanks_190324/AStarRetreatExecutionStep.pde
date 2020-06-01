@@ -14,7 +14,7 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
 
     Node currentNode;
 
-  public AStarRetreatExecutionStep(TankN tank){
+  public AStarRetreatExecutionStep(TankGR13 tank){
         super(tank);
         retreatPath = new Stack<Node>();
     }

@@ -5,7 +5,7 @@ Sebastian Kappelin
 Niklas Friberg
 */
 public class LoadCannonExecutionStep extends ExecutionPlanStep {
-    public LoadCannonExecutionStep(TankN tank){
+    public LoadCannonExecutionStep(TankGR13 tank){
         super(tank);
     }
 

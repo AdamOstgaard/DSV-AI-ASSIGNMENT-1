@@ -9,7 +9,7 @@ Niklas Friberg
 public class PauseExecutionStep extends ExecutionPlanStep {
     int start = -1;
     int millisecs;
-    public PauseExecutionStep(TankN tank, int millisecs){
+    public PauseExecutionStep(TankGR13 tank, int millisecs){
         super(tank);
         this.millisecs = millisecs;
     }

@@ -72,7 +72,7 @@ class Node {
   Stack<Node> getPath() {
     return getPath(new Stack<Node>());
   }
-  //Hämtar ut pathen från TankN.astar()
+  //Hämtar ut pathen från TankGR13.astar()
   Stack<Node> getPath(Stack<Node> path){
     path.push(this);
     if (parent == null){

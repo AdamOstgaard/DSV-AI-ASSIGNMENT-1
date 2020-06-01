@@ -8,7 +8,7 @@ public class RadioUpdateTeamExecutionStep extends ExecutionPlanStep {
     
     boolean updated = false;
 
-    public RadioUpdateTeamExecutionStep(TankN tank){
+    public RadioUpdateTeamExecutionStep(TankGR13 tank){
         super(tank);
     }
 
@@ -18,7 +18,7 @@ public class RadioUpdateTeamExecutionStep extends ExecutionPlanStep {
 
     public void execute(){
         for (Tank t : teams[0].tanks){
-            TankN tN = (TankN) t;
+            TankGR13 tN = (TankGR13) t;
             tN.known.updateContent(tank.known);
         }
         updated = true;

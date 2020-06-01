@@ -1,7 +1,7 @@
 public abstract class ExecutionPlanStep {
-    TankN tank;
+    TankGR13 tank;
 
-    public ExecutionPlanStep(TankN tank){
+    public ExecutionPlanStep(TankGR13 tank){
         this.tank = tank;
     }
     // if step is not valid a rfeplanning is triggered

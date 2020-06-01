@@ -14,7 +14,7 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
     boolean pathExists = true;
     
     //Walks to the first enemy it gets or a random unknown node
-    public AStarMoveExecutionStep(TankN tank){
+    public AStarMoveExecutionStep(TankGR13 tank){
         super(tank);
         goalNode = tank.known.getFirstEnemy();
         if (goalNode == null){

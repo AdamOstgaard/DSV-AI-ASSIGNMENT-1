@@ -7,7 +7,7 @@ Niklas Friberg
 public class WalkToRandomExecutionStep extends ExecutionPlanStep {
     private Node tempTarget = null;
 
-    public WalkToRandomExecutionStep(TankN tank){
+    public WalkToRandomExecutionStep(TankGR13 tank){
         super(tank);
     }
 
