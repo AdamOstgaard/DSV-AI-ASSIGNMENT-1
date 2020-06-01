@@ -358,31 +358,19 @@ class Tank extends Sprite { //<>//
   }
 
   public Tank[] getFriendlyTanks(){
-    Tank[] friendly = new Tank[2];
-    if (id == 0){
-      friendly[0] = allTanks[1];
-      friendly[1] = allTanks[2];
-    }
-    if (id == 1){
-      friendly[0] = allTanks[0];
-      friendly[1] = allTanks[2];
-    }
-    if (id == 2){
-      friendly[0] = allTanks[0];
-      friendly[1] = allTanks[1];
-    }
-    return friendly;
-  }  
-  
-  public Tank[] getOtherTanks(){
-    Tank[] otherTanks = new Tank[5];
-    for (int i = 1; i < allTanks.length; i++)
+    Tank[] friendlyTanks = new Tank[2];
+    int j = 0;
+    
+    for (int i = 0; i < allTanks.length; i++)
     {
       Tank otherTank = allTanks[i]; 
-      otherTanks[i] = otherTank;
-    }  
-    return otherTanks;
-  }
+      if(otherTank.team_id == team_id && id != otherTank.id){
+        friendlyTanks[j++] = otherTank;
+      }  
+    }
+    return friendlyTanks;
+  }  
+
 
   //**************************************************
   // Anropad från den cannonBall som träffat.
