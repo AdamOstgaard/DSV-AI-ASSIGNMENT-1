@@ -1,5 +1,11 @@
+/* Group 13
+Authors:
+Adam Östgaard
+Sebastian Kappelin
+Niklas Friberg
+*/
 
-// Good for debugging and waiting for reload
+// Used for debugging and waiting for reload
 public class PauseExecutionStep extends ExecutionPlanStep {
     int start = -1;
     int millisecs;

@@ -1,3 +1,9 @@
+/* Group 13
+Authors:
+Adam Östgaard
+Sebastian Kappelin
+Niklas Friberg
+*/
 public class RadioUpdateTeamExecutionStep extends ExecutionPlanStep {
     
     boolean updated = false;

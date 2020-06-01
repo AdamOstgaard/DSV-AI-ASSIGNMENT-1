@@ -1,3 +1,9 @@
+/* Group 13
+Authors:
+Adam Östgaard
+Sebastian Kappelin
+Niklas Friberg
+*/
 public class LoadCannonExecutionStep extends ExecutionPlanStep {
     public LoadCannonExecutionStep(TankN tank){
         super(tank);

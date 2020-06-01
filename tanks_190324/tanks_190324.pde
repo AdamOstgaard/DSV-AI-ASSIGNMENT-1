@@ -108,7 +108,7 @@ void setup(){
   
  
   // nytt Team: id, color, tank0pos, id, shot
-  teams[0] = new Team1(0, tank_size, team0Color, 
+  teams[0] = new TeamGR13(0, tank_size, team0Color, 
                       team0_tank0_startpos, 0, allShots[0],
                       team0_tank1_startpos, 1, allShots[1],
                       team0_tank2_startpos, 2, allShots[2]);
