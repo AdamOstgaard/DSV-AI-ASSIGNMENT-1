@@ -343,33 +343,7 @@ class Tank extends Sprite { //<>//
     }
   }
 
-  public Tank[] getEnemyTanks() {
-    Tank[] enemyTanks = new Tank[3];
-    int j = 0;
-    
-    for (int i = 0; i < allTanks.length; i++)
-    {
-      Tank otherTank = allTanks[i]; 
-      if(otherTank.team_id != team_id){
-        enemyTanks[j++] = otherTank;
-      }  
-    }
-    return enemyTanks;
-  }
 
-  public Tank[] getFriendlyTanks(){
-    Tank[] friendlyTanks = new Tank[2];
-    int j = 0;
-    
-    for (int i = 0; i < allTanks.length; i++)
-    {
-      Tank otherTank = allTanks[i]; 
-      if(otherTank.team_id == team_id && id != otherTank.id){
-        friendlyTanks[j++] = otherTank;
-      }  
-    }
-    return friendlyTanks;
-  }  
 
 
   //**************************************************
