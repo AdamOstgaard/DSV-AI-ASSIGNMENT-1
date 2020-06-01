@@ -1,4 +1,10 @@
 
+/* Group 13
+Authors:
+Adam Östgaard
+Sebastian Kappelin
+Niklas Friberg
+*/
 public class AStarMoveExecutionStep extends ExecutionPlanStep {
 
     private StateFlag stateFlag = StateFlag.IDLE; 
@@ -8,7 +14,7 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
     Node currentNode, previousNode, currentGoalNode;
     boolean pathExists = true;
     
-
+    //Walks to the first enemy it gets or a random unknown node
   public AStarMoveExecutionStep(TankN tank){
         super(tank);
         goalNode = tank.known.getFirstEnemy();
@@ -18,11 +24,13 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
         movePath = new Stack<Node>();
     }
 
+    //is valid as long as tank is not immobilized and pathExists is true
     public boolean isValid(){
         return !tank.isImmobilized && pathExists;
     }
 
     //Called continuously until isFulfilled() or no longer isValid()
+    //Executes different code dependent on stateFlag
     public void execute(){
         if(isFulfilled()){
             println("Fulfilled!!");
@@ -68,6 +76,7 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
 
     }
     
+    //is fulfilled when the tanks closest node is the goalNode
     public boolean isFulfilled(){
         return grid.getNearestNode(tank.position) == grid.getNearestNode(goalNode.position);
     }
@@ -113,6 +122,8 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
                     neighbour.g = current.g + PVector.dist(current.position, neighbour.position) * 10;
                 }
                 else if (neighbour.nodeContent == Content.OBSTACLE) {
+                    //if neighbour is obstacle assign weight to the node and neighbouring nodes
+                    neighbour.g = current.g + PVector.dist(current.position, neighbour.position) * 20;
                     ArrayList<Node> neighboursToObstacle = tank.known.getNeighbours(neighbour.col, neighbour.row);
                     for (Node n : neighboursToObstacle){
                         n.g = current.g + PVector.dist(current.position, n.position) * 10;
@@ -131,8 +142,9 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
     return false;
   }
 
+    //if a path is found get path from goalNode and store in movePath then pop one node (the tanks postition)
   void replan(){
-        stateFlag = StateFlag.IDLE; 
+        stateFlag = StateFlag.IDLE;
         if (astar(tank.known.getNearestNode(tank.position), goalNode)){
             movePath = tank.known.getNearestNode(goalNode.position).getPath();
             if (!movePath.isEmpty())
@@ -152,6 +164,8 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
         return sv.isNodeInFront(n, reading);
   }
 
+    //Pops nodes from movepath until currentNode is not in front then pushes currentNode back on the stack
+    //returns false if the first node on the stack is not in front of the tank
   boolean furtherNodeinFront(){
       if (movePath.isEmpty()){
           return true;
