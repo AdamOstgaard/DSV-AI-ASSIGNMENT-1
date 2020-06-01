@@ -20,15 +20,16 @@ public class WalkToRandomExecutionStep extends ExecutionPlanStep {
         }
     }
 
+    //Steget är fullbordat när tanken har nått noden.
     public boolean isFulfilled(){
         if(tempTarget != null && tempTarget == grid.getNearestNode(tank.position)){
-            tank.known.getNearestNode(tank.position).nodeContent = Content.EMPTY;
             return true;
         }
         return false;
         
     }
 
+    //Går till en slumpvald nod.
     private void wander() {
         Node tempNode = grid.getNearestNode(grid.getRandomNodePosition());
         tank.moveTo(tempNode.position);
