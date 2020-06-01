@@ -1,3 +1,10 @@
+/* Group 13
+Authors:
+Adam Östgaard
+Sebastian Kappelin
+Niklas Friberg
+*/
+
 public class ExecutionPlan {
     private ExecutionPlanStep[] steps;
 
@@ -16,6 +23,8 @@ public class ExecutionPlan {
         return getNextStep().isValid();
     }
 
+    //Gets next ExecutionPlanStep and executes it
+    //if step is fullfilled advance currentStepIndex
     public void execute(){
         ExecutionPlanStep step = getNextStep();
         step.execute();

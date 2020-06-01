@@ -1,4 +1,3 @@
-
 /* Group 13
 Authors:
 Adam Östgaard
@@ -11,11 +10,11 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
     boolean moveStarted = false;
     Stack<Node> movePath;
     private Node goalNode;
-    Node currentNode, previousNode, currentGoalNode;
+    Node currentNode, currentGoalNode;
     boolean pathExists = true;
     
     //Walks to the first enemy it gets or a random unknown node
-  public AStarMoveExecutionStep(TankN tank){
+    public AStarMoveExecutionStep(TankN tank){
         super(tank);
         goalNode = tank.known.getFirstEnemy();
         if (goalNode == null){
@@ -33,7 +32,6 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
     //Executes different code dependent on stateFlag
     public void execute(){
         if(isFulfilled()){
-            println("Fulfilled!!");
             tank.isMoving = false;
             tank.stopMoving();
             return;
@@ -54,7 +52,6 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
                     break;
                 case WANDERING:
                     if (!nodeInFront(currentGoalNode) && !tank.isRotating){
-                        System.out.println("replanning");
                         replan();
                     }
                     else if (furtherNodeinFront()){
@@ -69,7 +66,6 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
             
         }
         if (!moveStarted){
-            println("starting move!");
             moveStarted = true;
             replan();
         }
@@ -103,7 +99,6 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
 
         closed.add(current);
         if (current == end){
-            println("END REACHED");
             return true;
         }
         neighbours = tank.known.getNeighbours(current.col, current.row);
@@ -142,7 +137,7 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
     return false;
   }
 
-    //if a path is found get path from goalNode and store in movePath then pop one node (the tanks postition)
+    //If a path is found get path from goalNode and store in movePath then pop one node (the tanks postition)
   void replan(){
         stateFlag = StateFlag.IDLE;
         if (astar(tank.known.getNearestNode(tank.position), goalNode)){
@@ -178,7 +173,6 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
             currentNode = movePath.pop();
             while (sv.isNodeInFront(currentNode, reading) && !movePath.isEmpty()){
                 result = true;
-                previousNode = currentNode;
                 currentNode = movePath.pop();
             }
             movePath.push(currentNode);

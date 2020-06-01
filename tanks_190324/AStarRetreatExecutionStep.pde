@@ -1,4 +1,9 @@
-
+/* Group 13
+Authors:
+Adam Östgaard
+Sebastian Kappelin
+Niklas Friberg
+*/
 public class AStarRetreatExecutionStep extends ExecutionPlanStep {
 
     private StateFlag stateFlag = StateFlag.IDLE; 
@@ -8,28 +13,25 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
     boolean pathExists = true;
 
     Node currentNode;
-    Node previousNode;
-    
 
   public AStarRetreatExecutionStep(TankN tank){
         super(tank);
         retreatPath = new Stack<Node>();
     }
 
+    //is valid as long as tank is not immobilized and pathExists is true
     public boolean isValid(){
         return !tank.isImmobilized && pathExists;
     }
 
+    //Called continuously until isFulfilled() or no longer isValid()
+    //Executes different code dependent on stateFlag
     public void execute(){
         if(isFulfilled()){
-            println("Fulfilled!!");
             tank.isRetreating = false;
             tank.stopMoving();
             return;
         }
-        // AStar
-        //Inspirerat av https://github.com/SebLague/Pathfinding/blob/master/Episode%2001%20-%20pseudocode/Pseudocode
-        //Använder A* algoritmen för att ta fram den kortaste vägen till målet. Pathen hämtas genom Node.getPath på målnoden.
         if (retreatStarted){
             if(currentGoalNode != null && currentGoalNode == tank.known.getNearestNode(tank.position) && stateFlag == StateFlag.WANDERING){
                 stateFlag = StateFlag.ARRIVED_MOVE;
@@ -47,7 +49,6 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
                 case WANDERING:
                     if (!nodeInFront(currentGoalNode)){
                         if (tank.id == 2){
-                            System.out.println("replanning");
                         }
                         replan();
                     }
@@ -63,17 +64,19 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
             
         }
         if (!retreatStarted){
-            println("starting retreat!");
             retreatStarted = true;
             replan();
             }
 
     }
     
+    //is fulfilled when the tank is at its homebase
     public boolean isFulfilled(){
         return tank.isAtHomebase;
     }
 
+    //Inspirerat av https://github.com/SebLague/Pathfinding/blob/master/Episode%2001%20-%20pseudocode/Pseudocode
+    //Använder A* algoritmen för att ta fram den kortaste vägen till målet. Pathen hämtas genom Node.getPath på målnoden.
     boolean astar(Node start, Node end) {
         tank.known.resetPathVariables();
         ArrayList<Node> open = new ArrayList<Node>();
@@ -94,7 +97,6 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
 
         closed.add(current);
         if (current == end){
-            println("END REACHED");
             return true;
         }
         neighbours = tank.known.getNeighbours(current.col, current.row);
@@ -112,6 +114,8 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
                     neighbour.g = current.g + PVector.dist(current.position, neighbour.position) * 10;
                 } 
                 else if (neighbour.nodeContent == Content.OBSTACLE) {
+                    //if neighbour is obstacle assign weight to the node and neighbouring nodes
+                    neighbour.g = current.g + PVector.dist(current.position, neighbour.position) * 20;
                     ArrayList<Node> neighboursToObstacle = tank.known.getNeighbours(neighbour.col, neighbour.row);
                     for (Node n : neighboursToObstacle){
                         n.g = current.g + PVector.dist(current.position, n.position) * 10;
@@ -140,11 +144,14 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
         return sv.isNodeInFront(n, reading);
   }
 
+    //Pops nodes from movepath until currentNode is not in front then pushes currentNode back on the stack
+    //returns false if the first node on the stack is not in front of the tank
   boolean furtherNodeinFront(){
       if (retreatPath.isEmpty()){
           return false;
-      }
-      else{
+      } 
+      else 
+      {
             boolean result = false;
             Sensor s = tank.getSensor("VISUAL");
             SensorReading reading = s.readValue();
@@ -152,17 +159,16 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
             currentNode = retreatPath.pop();
             while (sv.isNodeInFront(currentNode, reading) && !retreatPath.isEmpty()){
                 result = true;
-                previousNode = currentNode;
                 currentNode = retreatPath.pop();
             }
             retreatPath.push(currentNode);
             return result;
       }
-  }
+    }
 
+    //If a path is found get path from goalNode and store in movePath then pop one node (the tanks postition)
     void replan(){
         stateFlag = StateFlag.IDLE; 
-        // boolean moveStarted = false;
         if (astar(tank.known.getNearestNode(tank.position), tank.known.getNearestNode(tank.startpos))){
             retreatPath = tank.known.getNearestNode(tank.startpos).getPath();
             if (!retreatPath.isEmpty())
@@ -178,51 +184,6 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
           tank.moveTo(currentGoalNode.position);
       }
     }
-
-//     private void wander() {
-//         /*println("waypoints: ");
-//         while(!retreatPath.isEmpty()){
-//             println(retreatPath.pop());
-//         }*/
-//         Sensor s = tank.getSensor("VISUAL");
-//         SensorReading reading = s.readValue();
-        
-//         SensorVisuals sv = (SensorVisuals) s;
-
-//         if(!tank.retreatPath.isEmpty()){
-//             currentNode = tank.retreatPath.pop();
-//             while (sv.isNodeInFront(currentNode, reading) && !tank.retreatPath.isEmpty()){
-//                 previousNode = currentNode;
-//                 currentNode = tank.retreatPath.pop();
-//             }
-//             if (!sv.isNodeInFront(currentNode, reading)){
-//                 if(previousNode != null){
-//                     tank.moveTo(previousNode.position);
-//                     currentGoalNode = previousNode;
-//                     previousNode = null;
-//                     return;
-//                 } else {
-//                     tank.moveTo(currentNode.position);
-//                     currentGoalNode = currentNode;
-//                     return;
-//                 }
-                
-//             }
-//         }
-//         if(currentNode != null){
-//             tank.moveTo(currentNode.position);
-//             currentGoalNode = currentNode;
-//         }
-
-//         /*if(!tank.retreatPath.isEmpty()){
-//             tempNode = tank.retreatPath.pop();
-//             println("POPPED: " + tempNode.position);
-//             tank.moveTo(tempNode.position);
-//             currentGoalNode = tempNode;
-//             return;
-//         }*/
-//         println("stack empty");
-//     }
 }
 
     
