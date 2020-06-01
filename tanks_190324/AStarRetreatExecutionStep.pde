@@ -28,6 +28,8 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
             return;
         }
         // AStar
+        //Inspirerat av https://github.com/SebLague/Pathfinding/blob/master/Episode%2001%20-%20pseudocode/Pseudocode
+        //Använder A* algoritmen för att ta fram den kortaste vägen till målet. Pathen hämtas genom Node.getPath på målnoden.
         if (retreatStarted){
             if(currentGoalNode != null && currentGoalNode == tank.known.getNearestNode(tank.position) && stateFlag == StateFlag.WANDERING){
                 stateFlag = StateFlag.ARRIVED_MOVE;
@@ -98,7 +100,6 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
         neighbours = tank.known.getNeighbours(current.col, current.row);
         for (Node neighbour : neighbours){
             if (neighbour.nodeContent == Content.ENEMY ||
-            neighbour.nodeContent == Content.OBSTACLE ||
             closed.contains(neighbour)){
               continue;
             }
@@ -109,6 +110,12 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
                 }
                 else if (neighbour.nodeContent == Content.FRIEND){
                     neighbour.g = current.g + PVector.dist(current.position, neighbour.position) * 10;
+                } 
+                else if (neighbour.nodeContent == Content.OBSTACLE) {
+                    ArrayList<Node> neighboursToObstacle = tank.known.getNeighbours(neighbour.col, neighbour.row);
+                    for (Node n : neighboursToObstacle){
+                        n.g = current.g + PVector.dist(current.position, n.position) * 10;
+                    }
                 }
               else{
                 neighbour.g = current.g + PVector.dist(current.position, neighbour.position);
