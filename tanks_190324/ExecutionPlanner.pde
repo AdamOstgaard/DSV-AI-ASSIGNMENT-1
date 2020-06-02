@@ -11,6 +11,7 @@ public class ExecutionPlanner {
         this.tank = tank;
     }
 
+    //Väljer plan som tanken ska följa beroende på tankens tillstånd.
     public ExecutionPlan generatePlan(){
         if(!tank.hasShot){
             return generateLoadCannonPlan();
@@ -26,6 +27,7 @@ public class ExecutionPlanner {
         return generateNormalPlan();
     }
 
+    //Retirerar till basen och rapporterar om sin kända karta till sina allierade.
     private ExecutionPlan generateRetreatPlan(){
         ArrayList<ExecutionPlanStep> steps = new ArrayList<ExecutionPlanStep>();
         steps.add(new AStarRetreatExecutionStep(tank));
@@ -37,6 +39,8 @@ public class ExecutionPlanner {
 
         return new ExecutionPlan(itemsArray);
     }
+
+    //Tanken vandrar till okända noder. Om den hittar en fiende så försöker den skjuta fienden och sen retirera.
     private ExecutionPlan generateNormalPlan(){
         ArrayList<ExecutionPlanStep> steps = new ArrayList<ExecutionPlanStep>();
         steps.add(new AStarMoveExecutionStep(tank));
@@ -54,6 +58,7 @@ public class ExecutionPlanner {
         return new ExecutionPlan(itemsArray);
     }
 
+    //Laddar kanonen
     private ExecutionPlan generateLoadCannonPlan(){
         ArrayList<ExecutionPlanStep> steps = new ArrayList<ExecutionPlanStep>();
         steps.add(new PauseExecutionStep(tank, 3000));
@@ -64,6 +69,7 @@ public class ExecutionPlanner {
         return new ExecutionPlan(itemsArray);
     }
 
+    //Tittar runt omkring sig efter en fiende att skjuta.
     private ExecutionPlan generateImmobilizedPlan(){
         ArrayList<ExecutionPlanStep> steps = new ArrayList<ExecutionPlanStep>();
         steps.add(new LookAroundForEnemyExecutionStep(tank));
@@ -76,6 +82,7 @@ public class ExecutionPlanner {
         return new ExecutionPlan(itemsArray);
     }
 
+    //Skjuter kanonen och retirerar. Planen skapas direkt från updateLogic om den ser en fiende och har ett skott.
     public ExecutionPlan generateFireCannonPlan(){
         ArrayList<ExecutionPlanStep> steps = new ArrayList<ExecutionPlanStep>();
         steps.add(new FireCannonExecutionStep(tank));
@@ -89,6 +96,7 @@ public class ExecutionPlanner {
         return new ExecutionPlan(itemsArray);
     }
 
+    //Går till slumpvald nod. Kallas när tanken kolliderar för att undvika att de fastnar.
     public ExecutionPlan generateWalkToRandomPlan(){
         ArrayList<ExecutionPlanStep> steps = new ArrayList<ExecutionPlanStep>();
         steps.add(new WalkToRandomExecutionStep(tank));
