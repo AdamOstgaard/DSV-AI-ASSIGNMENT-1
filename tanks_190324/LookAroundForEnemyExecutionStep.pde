@@ -1,8 +1,14 @@
+/* Group 13
+Authors:
+Adam Östgaard
+Sebastian Kappelin
+Niklas Friberg
+*/
 public class LookAroundForEnemyExecutionStep extends ExecutionPlanStep {
     private float target_rotation = -1;
     private boolean isTurning = false;
 
-    public LookAroundForEnemyExecutionStep(TankN tank){
+    public LookAroundForEnemyExecutionStep(TankGR13 tank){
         super(tank);
     }
 
@@ -12,7 +18,6 @@ public class LookAroundForEnemyExecutionStep extends ExecutionPlanStep {
 
     public void execute(){
         if(isFulfilled()){
-            println("Fulfilled!!");
             tank.stopTurning();
             tank.stopMoving();
             return;

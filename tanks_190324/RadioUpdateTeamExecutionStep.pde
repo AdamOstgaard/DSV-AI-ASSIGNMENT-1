@@ -1,8 +1,14 @@
+/* Group 13
+Authors:
+Adam Östgaard
+Sebastian Kappelin
+Niklas Friberg
+*/
 public class RadioUpdateTeamExecutionStep extends ExecutionPlanStep {
     
     boolean updated = false;
 
-    public RadioUpdateTeamExecutionStep(TankN tank){
+    public RadioUpdateTeamExecutionStep(TankGR13 tank){
         super(tank);
     }
 
@@ -13,7 +19,7 @@ public class RadioUpdateTeamExecutionStep extends ExecutionPlanStep {
     //Rapporterar om sin kända värld till sitt lag.
     public void execute(){
         for (Tank t : teams[0].tanks){
-            TankN tN = (TankN) t;
+            TankGR13 tN = (TankGR13) t;
             tN.known.updateContent(tank.known);
         }
         updated = true;
