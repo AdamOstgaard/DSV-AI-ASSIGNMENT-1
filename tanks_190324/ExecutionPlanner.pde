@@ -4,6 +4,9 @@ Adam Östgaard
 Sebastian Kappelin
 Niklas Friberg
 */
+
+enum StateFlag { IDLE, WANDERING, ROTATING, ARRIVED_MOVE, ARRIVED_ROTATE }
+
 public class ExecutionPlanner {
     private TankGR13 tank;
 
