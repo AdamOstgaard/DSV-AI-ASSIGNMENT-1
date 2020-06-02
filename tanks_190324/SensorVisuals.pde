@@ -11,10 +11,10 @@ class SensorVisuals extends Sensor {
 
     //Kollar efter sprites inom tankens line of sight. Returnerar en SensorReading med närmsta sprite eller null.
     public SensorReading readValue(){
-        TankN tankN = (TankN) tank;
-        Tank[] enemyTanks = tankN.getEnemyTanks();
-        Tank[] friendlyTanks = tankN.getFriendlyTanks();
-        PVector position = tankN.position;
+        TankGR13 TankGR13 = (TankGR13) tank;
+        Tank[] enemyTanks = TankGR13.getEnemyTanks();
+        Tank[] friendlyTanks = TankGR13.getFriendlyTanks();
+        PVector position = TankGR13.position;
 
         float closest = Float.MAX_VALUE;
         Sprite closestSprite = null;
@@ -48,15 +48,15 @@ class SensorVisuals extends Sensor {
 
 
 
-        float heading = round(fixAngle(degrees(getAngle(tankN.position.x, tankN.position.y, closestSprite.position.x, closestSprite.position.y))));
+        float heading = round(fixAngle(degrees(getAngle(TankGR13.position.x, TankGR13.position.y, closestSprite.position.x, closestSprite.position.y))));
 
         return new SensorReading(closestSprite, closest, heading);
     }
 
     //True om sprite är inom tankens LoS, false annars.
     boolean isSpriteInFront(Sprite t){
-        TankN tankN = (TankN) tank;
-        PVector position = tankN.position;
+        TankGR13 TankGR13 = (TankGR13) tank;
+        PVector position = TankGR13.position;
         //Inspirerat av The Nature of Code exercise_6_17_view
         float d = PVector.dist(position, t.position);
 
@@ -66,8 +66,8 @@ class SensorVisuals extends Sensor {
         float a = t.radius;
         float angleDiff = atan(a / d);
         
-        float heading = tankN.heading;
-        float heading2 = round(fixAngle(degrees(tankN.heading)));
+        float heading = TankGR13.heading;
+        float heading2 = round(fixAngle(degrees(TankGR13.heading)));
 
         // pushMatrix();
         // translate(position.x, position.y);
@@ -106,11 +106,11 @@ class SensorVisuals extends Sensor {
 
     //Kollar om en nod är inom tankens synfält. Tanken kan inte se bakom sprites eller in i fiendebasen om den inte själv är där inne.
     boolean isNodeInFront(Node n, SensorReading sr){
-        TankN tankN = (TankN) tank;
+        TankGR13 TankGR13 = (TankGR13) tank;
         //Inspirerat av The Nature of Code exercise_6_17_view
-        Tank[] enemyTanks = tankN.getEnemyTanks();
+        Tank[] enemyTanks = TankGR13.getEnemyTanks();
         Team enemyTeam = enemyTanks[0].team;
-        PVector position = tankN.position;
+        PVector position = TankGR13.position;
         //Inspirerat av The Nature of Code exercise_6_17_view
         float d = PVector.dist(position, n.position);
 
@@ -120,34 +120,34 @@ class SensorVisuals extends Sensor {
         float a = n.radius;
         float angleDiff = atan(a / d);
         
-        float heading = tankN.heading;
-        float heading2 = round(fixAngle(degrees(tankN.heading)));
+        float heading = TankGR13.heading;
+        float heading2 = round(fixAngle(degrees(TankGR13.heading)));
 
 
         float srDistance = 0;
         if (sr != null){
             Sprite tempSprite = sr.obj();
             Node tempNode = grid.getNearestNode(tempSprite.position);
-            srDistance = PVector.dist(tankN.position, tempNode.position);
+            srDistance = PVector.dist(TankGR13.position, tempNode.position);
         }
 
         if (sr != null) {
             if(heading > diff - angleDiff && heading < diff + angleDiff && d < srDistance 
-            && ( (!inBase(tankN.position, enemyTeam) && !inBase(n.position, enemyTeam) ) || inBase(tankN.position, enemyTeam) )){
+            && ( (!inBase(TankGR13.position, enemyTeam) && !inBase(n.position, enemyTeam) ) || inBase(TankGR13.position, enemyTeam) )){
                 return true;
             }
         }
             else if(heading > diff - angleDiff && heading < diff + angleDiff 
-            && ( (!inBase(tankN.position, enemyTeam) && !inBase(n.position, enemyTeam) ) || inBase(tankN.position, enemyTeam) ) ){
+            && ( (!inBase(TankGR13.position, enemyTeam) && !inBase(n.position, enemyTeam) ) || inBase(TankGR13.position, enemyTeam) ) ){
                 return true;
             }
         if (heading2> round(fixAngle(degrees(diff - angleDiff))) && heading2 < round(fixAngle(degrees(diff + angleDiff)))){
             if (sr != null) {
-                if(d < srDistance && ( (!inBase(tankN.position, enemyTeam) && !inBase(n.position, enemyTeam) ) || inBase(tankN.position, enemyTeam) )){
+                if(d < srDistance && ( (!inBase(TankGR13.position, enemyTeam) && !inBase(n.position, enemyTeam) ) || inBase(TankGR13.position, enemyTeam) )){
                 return true;
                 }
             }
-            else if( ( !inBase(tankN.position, enemyTeam) && !inBase(n.position, enemyTeam) ) || inBase(tankN.position, enemyTeam)) {
+            else if( ( !inBase(TankGR13.position, enemyTeam) && !inBase(n.position, enemyTeam) ) || inBase(TankGR13.position, enemyTeam)) {
                 return true;
             }
         }
