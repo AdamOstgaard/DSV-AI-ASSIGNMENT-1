@@ -116,14 +116,6 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
                 else if (neighbour.nodeContent == Content.FRIEND){
                     neighbour.g = current.g + PVector.dist(current.position, neighbour.position) * 10;
                 }
-                else if (neighbour.nodeContent == Content.OBSTACLE) {
-                    //if neighbour is obstacle assign weight to the node and neighbouring nodes
-                    neighbour.g = current.g + PVector.dist(current.position, neighbour.position) * 20;
-                    ArrayList<Node> neighboursToObstacle = tank.known.getNeighbours(neighbour.col, neighbour.row);
-                    for (Node n : neighboursToObstacle){
-                        n.g = current.g + PVector.dist(current.position, n.position) * 10;
-                    }
-                }
               else{
                 neighbour.g = current.g + PVector.dist(current.position, neighbour.position);
               }
