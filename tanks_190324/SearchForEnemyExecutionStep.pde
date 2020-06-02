@@ -1,4 +1,10 @@
 
+/* Group 13
+Authors:
+Adam Östgaard
+Sebastian Kappelin
+Niklas Friberg
+*/
 enum StateFlag { IDLE, WANDERING, ROTATING, ARRIVED_MOVE, ARRIVED_ROTATE }
 
 public class SearchForEnemyExecutionStep extends ExecutionPlanStep {
@@ -6,7 +12,7 @@ public class SearchForEnemyExecutionStep extends ExecutionPlanStep {
     private StateFlag stateFlag = StateFlag.IDLE; 
     private Node tempTarget;
 
-    public SearchForEnemyExecutionStep(TankN tank){
+    public SearchForEnemyExecutionStep(TankGR13 tank){
         super(tank);
     }
 

@@ -1,4 +1,9 @@
-
+/* Group 13
+Authors:
+Adam Östgaard
+Sebastian Kappelin
+Niklas Friberg
+*/
 public class AStarMoveExecutionStep extends ExecutionPlanStep {
 
     private StateFlag stateFlag = StateFlag.IDLE; 
@@ -8,34 +13,29 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
     Node currentGoalNode;
     boolean pathExists = true;
     
-
-  public AStarMoveExecutionStep(TankN tank){
+    //Walks to the first enemy it gets or a random unknown node
+    public AStarMoveExecutionStep(TankGR13 tank){
         super(tank);
         goalNode = tank.known.getFirstEnemy();
         if (goalNode == null){
             goalNode = tank.known.getRandomUnknownNode();
         }
-    //    if (tank.id == 0)
-    //         goalNode = tank.known.nodes[14][0];
-        // if (tank.id == 1)
-        //     goalNode = tank.known.nodes[14][2];
-    //     if (tank.id == 2)
-    //         goalNode = tank.known.nodes[14][4]; 
         movePath = new Stack<Node>();
     }
 
+    //is valid as long as tank is not immobilized and pathExists is true
     public boolean isValid(){
         return !tank.isImmobilized && pathExists;
     }
 
+    //Called continuously until isFulfilled() or no longer isValid()
+    //Executes different code dependent on stateFlag
     public void execute(){
         if(isFulfilled()){
-            println("Fulfilled!!");
             tank.isMoving = false;
             tank.stopMoving();
             return;
         }
-        // AStar
         if (moveStarted){
             if(currentGoalNode != null && currentGoalNode == tank.known.getNearestNode(tank.position) && stateFlag == StateFlag.WANDERING){
                 stateFlag = StateFlag.ARRIVED_MOVE;
@@ -52,17 +52,11 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
                     break;
                 case WANDERING:
                     if (!nodeInFront(currentGoalNode) && !tank.isRotating){
-                        System.out.println("replanning");
                         replan();
                     }
                     else if (furtherNodeinFront()){
                         wander();
                     }
-                    // if (furtherNodeinFront()){
-                    //     wander();
-                    // }
-                    // else
-                    //     replan();
                     break;
                 case ARRIVED_MOVE:
                     stateFlag = StateFlag.IDLE;
@@ -72,17 +66,19 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
             
         }
         if (!moveStarted){
-            println("starting move!");
             moveStarted = true;
             replan();
         }
 
     }
     
+    //is fulfilled when the tanks closest node is the goalNode
     public boolean isFulfilled(){
         return grid.getNearestNode(tank.position) == grid.getNearestNode(goalNode.position);
     }
 
+        //Inspirerat av https://github.com/SebLague/Pathfinding/blob/master/Episode%2001%20-%20pseudocode/Pseudocode
+        //Använder A* algoritmen för att ta fram den kortaste vägen till målet. Pathen hämtas genom Node.getPath på målnoden.
     boolean astar(Node start, Node end) {
         tank.known.resetPathVariables();
         ArrayList<Node> open = new ArrayList<Node>();
@@ -103,7 +99,6 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
 
         closed.add(current);
         if (current == end){
-            println("END REACHED");
             return true;
         }
         neighbours = tank.known.getNeighbours(current.col, current.row);
@@ -121,6 +116,14 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
                 else if (neighbour.nodeContent == Content.FRIEND){
                     neighbour.g = current.g + PVector.dist(current.position, neighbour.position) * 10;
                 }
+                else if (neighbour.nodeContent == Content.OBSTACLE) {
+                    //if neighbour is obstacle assign weight to the node and neighbouring nodes
+                    neighbour.g = current.g + PVector.dist(current.position, neighbour.position) * 20;
+                    ArrayList<Node> neighboursToObstacle = tank.known.getNeighbours(neighbour.col, neighbour.row);
+                    for (Node n : neighboursToObstacle){
+                        n.g = current.g + PVector.dist(current.position, n.position) * 10;
+                    }
+                }
               else{
                 neighbour.g = current.g + PVector.dist(current.position, neighbour.position);
               }
@@ -134,9 +137,9 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
     return false;
   }
 
+    //If a path is found get path from goalNode and store in movePath then pop one node (the tanks postition)
   void replan(){
-        stateFlag = StateFlag.IDLE; 
-        // boolean moveStarted = false;
+        stateFlag = StateFlag.IDLE;
         if (astar(tank.known.getNearestNode(tank.position), goalNode)){
             movePath = tank.known.getNearestNode(goalNode.position).getPath();
             if (!movePath.isEmpty())
@@ -156,6 +159,8 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
         return sv.isNodeInFront(n, reading);
   }
 
+    //Pops nodes from movepath until currentNode is not in front then pushes currentNode back on the stack
+    //returns false if the first node on the stack is not in front of the tank
   boolean furtherNodeinFront(){
       if (movePath.isEmpty()){
           return true;
@@ -170,7 +175,6 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
             currentNode = movePath.pop();
             while (sv.isNodeInFront(currentNode, reading) && !movePath.isEmpty()){
                 result = true;
-                previousNode = currentNode;
                 currentNode = movePath.pop();
             }
             movePath.push(currentNode);
@@ -187,51 +191,6 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
           tank.moveTo(currentGoalNode.position);
       }
   }
-
-    // private void wander() {
-    //     /*println("waypoints: ");
-    //     while(!movePath.isEmpty()){
-    //         println(movePath.pop());
-    //     }*/
-    //     Sensor s = tank.getSensor("VISUAL");
-    //     SensorReading reading = s.readValue();
-        
-    //     SensorVisuals sv = (SensorVisuals) s;
-
-    //     if(!movePath.isEmpty()){
-    //         currentNode = movePath.pop();
-    //         while (sv.isNodeInFront(currentNode, reading) && !movePath.isEmpty()){
-    //             previousNode = currentNode;
-    //             currentNode = movePath.pop();
-    //         }
-    //         if (!sv.isNodeInFront(currentNode, reading)){
-    //             if(previousNode != null){
-    //                 tank.moveTo(previousNode.position);
-    //                 goalNode = previousNode;
-    //                 previousNode = null;
-    //                 return;
-    //             } else {
-    //                 tank.moveTo(currentNode.position);
-    //                 goalNode = currentNode;
-    //                 return;
-    //             }
-                
-    //         }
-    //     }
-    //     if(currentNode != null){
-    //         tank.moveTo(currentNode.position);
-    //         goalNode = currentNode;
-    //     }
-
-    //     /*if(!tank.movePath.isEmpty()){
-    //         tempNode = tank.movePath.pop();
-    //         println("POPPED: " + tempNode.position);
-    //         tank.moveTo(tempNode.position);
-    //         goalNode = tempNode;
-    //         return;
-    //     }*/
-    //     println("stack empty");
-    // }
 }
 
     

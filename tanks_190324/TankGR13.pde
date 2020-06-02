@@ -5,7 +5,7 @@ Sebastian Kappelin
 Niklas Friberg
 */
 
-public class TankN extends Tank {
+public class TankGR13 extends Tank {
   ArrayList <Node> visitedNodes;
   Grid known;
   boolean isRetreating;
@@ -14,7 +14,7 @@ public class TankN extends Tank {
   ExecutionPlanner planner;
   ExecutionPlan currentPlan = null;
 
-  TankN(int id, Team team, PVector startpos, float diameter, CannonBall ball) {
+  TankGR13(int id, Team team, PVector startpos, float diameter, CannonBall ball) {
     super(id, team, startpos, diameter, ball);
     planner = new ExecutionPlanner(this);
     visitedNodes = new ArrayList <Node>();

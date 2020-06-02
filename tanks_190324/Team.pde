@@ -1,3 +1,10 @@
+/* Group 13
+Authors:
+Adam Östgaard
+Sebastian Kappelin
+Niklas Friberg
+*/
+
 class Team {
 
   Tank[] tanks = new Tank[3];

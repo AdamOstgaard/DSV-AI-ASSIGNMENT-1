@@ -1,7 +1,13 @@
+/* Group 13
+Authors:
+Adam Östgaard
+Sebastian Kappelin
+Niklas Friberg
+*/
 public class ExecutionPlanner {
-    private TankN tank;
+    private TankGR13 tank;
 
-    public ExecutionPlanner(TankN tank){
+    public ExecutionPlanner(TankGR13 tank){
         this.tank = tank;
     }
 
