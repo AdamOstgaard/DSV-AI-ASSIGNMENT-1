@@ -104,7 +104,6 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
         neighbours = tank.known.getNeighbours(current.col, current.row);
         for (Node neighbour : neighbours){
             if ((neighbour.nodeContent == Content.ENEMY && neighbour != goalNode) ||
-            neighbour.nodeContent == Content.OBSTACLE ||
             closed.contains(neighbour)){
               continue;
             }
