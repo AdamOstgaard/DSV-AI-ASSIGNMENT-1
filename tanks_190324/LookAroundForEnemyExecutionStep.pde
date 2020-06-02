@@ -12,10 +12,12 @@ public class LookAroundForEnemyExecutionStep extends ExecutionPlanStep {
         super(tank);
     }
 
+
     public boolean isValid(){
         return !isTurning || round10(fixAngle(degrees(tank.heading))) != round10(fixAngle(degrees(target_rotation)));
     }
 
+    //turns left until isFulfilled
     public void execute(){
         if(isFulfilled()){
             tank.stopTurning();
