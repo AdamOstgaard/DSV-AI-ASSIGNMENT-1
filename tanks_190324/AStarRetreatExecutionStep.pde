@@ -134,21 +134,26 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
   }
 
   boolean furtherNodeinFront(){
-      if (retreatPath.isEmpty()){
-          return false;
+      if (movePath.isEmpty()){
+          return true;
       }
       else{
+            Node currentNode = null;
+            Node previousNode = null;
             boolean result = false;
             Sensor s = tank.getSensor("VISUAL");
             SensorReading reading = s.readValue();
             SensorVisuals sv = (SensorVisuals) s;
-            currentNode = retreatPath.pop();
-            while (sv.isNodeInFront(currentNode, reading) && !retreatPath.isEmpty()){
+            currentNode = movePath.pop();
+            while (sv.isNodeInFront(currentNode, reading) && !movePath.isEmpty()){
                 result = true;
                 previousNode = currentNode;
-                currentNode = retreatPath.pop();
+                currentNode = movePath.pop();
             }
-            retreatPath.push(currentNode);
+            movePath.push(currentNode);
+            if (previousNode != null){
+                movePath.push(previousNode);
+            }
             return result;
       }
   }

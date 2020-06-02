@@ -26,6 +26,7 @@ public class LookAroundForEnemyExecutionStep extends ExecutionPlanStep {
         tank.turnLeft();
     }
 
+    //Steget har fullbordats om tanken ser en fiende.
     public boolean isFulfilled(){
         return tank.isEnemyInfront;
     }
