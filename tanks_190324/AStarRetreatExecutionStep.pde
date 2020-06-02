@@ -12,8 +12,6 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
     private Node currentGoalNode;
     boolean pathExists = true;
 
-    Node currentNode;
-
   public AStarRetreatExecutionStep(TankGR13 tank){
         super(tank);
         retreatPath = new Stack<Node>();
@@ -148,10 +146,11 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
     //returns false if the first node on the stack is not in front of the tank
   boolean furtherNodeinFront(){
       if (retreatPath.isEmpty()){
-          return false;
-      } 
-      else 
-      {
+          return true;
+      }
+      else{
+            Node currentNode = null;
+            Node previousNode = null;
             boolean result = false;
             Sensor s = tank.getSensor("VISUAL");
             SensorReading reading = s.readValue();
@@ -162,6 +161,9 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
                 currentNode = retreatPath.pop();
             }
             retreatPath.push(currentNode);
+            if (previousNode != null){
+                retreatPath.push(previousNode);
+            }
             return result;
       }
     }

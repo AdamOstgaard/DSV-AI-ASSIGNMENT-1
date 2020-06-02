@@ -16,6 +16,10 @@ public class WalkToRandomExecutionStep extends ExecutionPlanStep {
     }
 
     public void execute(){
+        pushMatrix();
+        ellipse(tank.position.x, tank.position.y, 40, 40);
+        fill(255,0,255,100);
+        popMatrix();
         if(isFulfilled()){
             println("Fulfilled!!");
             tank.stopMoving();

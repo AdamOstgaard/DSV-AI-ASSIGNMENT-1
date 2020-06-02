@@ -10,7 +10,7 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
     boolean moveStarted = false;
     Stack<Node> movePath;
     private Node goalNode;
-    Node currentNode, currentGoalNode;
+    Node currentGoalNode;
     boolean pathExists = true;
     
     //Walks to the first enemy it gets or a random unknown node
@@ -166,6 +166,8 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
           return true;
       }
       else{
+            Node currentNode = null;
+            Node previousNode = null;
             boolean result = false;
             Sensor s = tank.getSensor("VISUAL");
             SensorReading reading = s.readValue();
@@ -176,6 +178,9 @@ public class AStarMoveExecutionStep extends ExecutionPlanStep {
                 currentNode = movePath.pop();
             }
             movePath.push(currentNode);
+            if (previousNode != null){
+                movePath.push(previousNode);
+            }
             return result;
       }
   }
