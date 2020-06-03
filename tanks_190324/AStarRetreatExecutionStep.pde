@@ -45,14 +45,15 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
                     wander();
                     break;
                 case WANDERING:
+                    // if(tank.id == 0){
+                    //     displayPath();
+                    // }
                     if (!nodeInFront(currentGoalNode)){
-                        if (tank.id == 2){
-                        }
                         replan();
                     }
-                    else if (furtherNodeinFront()){
-                        wander();
-                    }
+                    // else if (furtherNodeinFront()){
+                    //     wander();
+                    // }
                     break;
                 case ARRIVED_MOVE:
                     stateFlag = StateFlag.IDLE;
@@ -97,7 +98,7 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
         if (current == end){
             return true;
         }
-        neighbours = tank.known.getNeighbours(current.col, current.row);
+        neighbours = tank.known.getNeighboursAStar(current.col, current.row);
         for (Node neighbour : neighbours){
             if (neighbour.nodeContent == Content.ENEMY ||
             neighbour.nodeContent == Content.OBSTACLE ||
@@ -123,6 +124,15 @@ public class AStarRetreatExecutionStep extends ExecutionPlanStep {
       }
     }
     return false;
+  }
+
+    void displayPath(){
+    pushMatrix();
+    for (Node n : retreatPath){
+        ellipse(n.position.x, n.position.y, 40, 40);
+        fill(255,0,255,100);
+    }
+    popMatrix();
   }
 
     boolean nodeInFront(Node n){
