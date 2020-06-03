@@ -178,16 +178,16 @@ class Grid {
   }
 
   Node getRandomUnknownNode(){
-    ArrayList<Node> unknownNodes = new ArrayList<Node>();
+    ArrayList<Node> enemyNodes = new ArrayList<Node>();
     for (int col = 0; col < nodes.length; col ++){
       for (int row = 0; row < nodes[col].length; row++){
         if(nodes[col][row].nodeContent == Content.UNKNOWN)
-          unknownNodes.add(nodes[col][row]);
+          enemyNodes.add(nodes[col][row]);
       }
     }
-    if (!unknownNodes.isEmpty()){
+    if (!enemyNodes.isEmpty()){
       Random rand = new Random();
-      return unknownNodes.get(rand.nextInt(unknownNodes.size()));
+      return enemyNodes.get(rand.nextInt(enemyNodes.size()));
     }
     else{
       for (int col = 0; col < nodes.length; col ++){
@@ -197,6 +197,23 @@ class Grid {
         }
       }
       return getRandomUnknownNode();
+    }
+  }
+
+    Node getRandomEnemyNode(){
+    ArrayList<Node> enemyNodes = new ArrayList<Node>();
+    for (int col = 0; col < nodes.length; col ++){
+      for (int row = 0; row < nodes[col].length; row++){
+        if(nodes[col][row].nodeContent == Content.ENEMY)
+          enemyNodes.add(nodes[col][row]);
+      }
+    }
+    if (!enemyNodes.isEmpty()){
+      Random rand = new Random();
+      return enemyNodes.get(rand.nextInt(enemyNodes.size()));
+    }
+    else{
+      return null;
     }
   }
 
@@ -246,7 +263,7 @@ class Grid {
       result.add(nodes[col + 1][row]);
     if (row + 1 <= rows - 1)
       result.add(nodes[col][row + 1]);
-    if (col - 1 >= 0 && row - 1 >= 0)
+    if (col - 1 >= 0 && row - 1 >= 0 )
       result.add(nodes[col - 1][row - 1]);
     if (col - 1 >= 0 && row + 1 <= rows - 1)
       result.add(nodes[col - 1][row + 1]);
@@ -256,6 +273,29 @@ class Grid {
       result.add(nodes[col + 1][row + 1]);
     return result;
   }
+
+    ArrayList<Node> getNeighboursAStar(int col, int row){
+    ArrayList<Node> result = new ArrayList<Node>();
+    if (col - 1 >= 0)
+      result.add(nodes[col - 1][row]);
+    if (row - 1 >= 0)
+      result.add(nodes[col][row - 1]);
+    if (col + 1 <= cols - 1)
+      result.add(nodes[col + 1][row]);
+    if (row + 1 <= rows - 1)
+      result.add(nodes[col][row + 1]);
+    if (col - 1 >= 0 && row - 1 >= 0 && (nodes[col - 1][row].nodeContent != Content.OBSTACLE || nodes[col][row - 1].nodeContent != Content.OBSTACLE))
+      result.add(nodes[col - 1][row - 1]);
+    if (col - 1 >= 0 && row + 1 <= rows - 1 && (nodes[col - 1][row].nodeContent != Content.OBSTACLE || nodes[col][row + 1].nodeContent != Content.OBSTACLE))
+      result.add(nodes[col - 1][row + 1]);
+    if (col + 1 <= cols - 1 && row - 1 >= 0 && (nodes[col + 1][row].nodeContent != Content.OBSTACLE || nodes[col][row - 1].nodeContent != Content.OBSTACLE))
+      result.add(nodes[col + 1][row - 1]);
+    if (col + 1 <= cols - 1 && row + 1 <= rows - 1 && (nodes[col + 1][row].nodeContent != Content.OBSTACLE || nodes[col][row + 1].nodeContent != Content.OBSTACLE)) 
+      result.add(nodes[col + 1][row + 1]);
+    return result;
+  }
+
+  
   void resetPathVariables(){
     for (int i = 0; i < cols; i++) {
       for (int j = 0; j < rows; j++) {
